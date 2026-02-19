@@ -1127,6 +1127,7 @@ GameObject:
   - component: {fileID: 1820699903}
   - component: {fileID: 1820699902}
   - component: {fileID: 1820699901}
+  - component: {fileID: 1820699905}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Teleporter
@@ -1177,7 +1178,7 @@ MeshRenderer:
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 0
+  m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
@@ -1227,6 +1228,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &1820699905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820699900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b98b9a492dcc62b4096560d7afa85e42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Teleport
+  scenename: 
 --- !u!1001 &5727045077345855379
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1288,9 +1302,9 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1624122183}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1468171056}
   - {fileID: 1304609017}
   - {fileID: 1820699904}
+  - {fileID: 1624122183}
