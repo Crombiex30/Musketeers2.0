@@ -9,7 +9,7 @@ public class Teleport : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            SceneController.EnterDungeon();
+            SceneController.EnterZone(scenename);
         }
     }
 }
