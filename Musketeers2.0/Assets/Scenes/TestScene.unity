@@ -1167,7 +1167,7 @@ Transform:
   m_GameObject: {fileID: 548467905}
   serializedVersion: 2
   m_LocalRotation: {x: 0.24014333, y: 0, z: 0, w: 0.97073746}
-  m_LocalPosition: {x: 0.007, y: 0.711, z: -1.386}
+  m_LocalPosition: {x: 0.044, y: 1.239, z: -2.388}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13562,7 +13562,7 @@ ParticleSystemRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
+  m_MotionVectors: 0
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
@@ -13600,7 +13600,7 @@ ParticleSystemRenderer:
   m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
-  m_SortMode: 0
+  m_SortMode: 4
   m_MinParticleSize: 0
   m_MaxParticleSize: 0.5
   m_CameraVelocityScale: 0
@@ -13609,7 +13609,7 @@ ParticleSystemRenderer:
   m_SortingFudge: 0
   m_NormalDirection: 1
   m_ShadowBias: 0
-  m_RenderAlignment: 2
+  m_RenderAlignment: 1
   m_Pivot: {x: 0, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
   m_EnableGPUInstancing: 1
@@ -14268,7 +14268,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 10, y: 7, z: 7}
+    m_Scale: {x: 15, y: 12, z: 10}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -14732,7 +14732,7 @@ ParticleSystem:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    separateAxes: 0
+    separateAxes: 1
   RotationModule:
     enabled: 0
     x:
@@ -16442,7 +16442,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     separateAxes: 0
-    frequency: 2
+    frequency: 5
     damping: 1
     octaves: 1
     octaveMultiplier: 0.5
@@ -17424,7 +17424,7 @@ ParticleSystem:
     intensity: 1
     rangeCurve:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 1
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -17478,7 +17478,7 @@ ParticleSystem:
     intensityCurve:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -25438,7 +25438,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: ef11d0b8b135d744882cc0d9d927adbe, type: 3}
+  m_Sprite: {fileID: -2746669284718534528, guid: 6e609988581680b4a91ac2430ffa0dd1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -25457,8 +25457,8 @@ Transform:
   m_GameObject: {fileID: 2111349566}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.9963494, z: -0, w: -0.08536948}
-  m_LocalPosition: {x: -10.13, y: 12.56, z: 6.8}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalPosition: {x: -10.13, y: 12.83, z: 6.8}
+  m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 548467906}
