@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class InteractUI : MonoBehaviour
 {
-    [SerializeField] private GameObject container;
-    [SerializeField] private PlayerInteraction interact;
+    public GameObject container;
+    public PlayerInteraction interact;
+
 
     private void Update()
     {
@@ -16,6 +17,8 @@ public class InteractUI : MonoBehaviour
         {
             Hide();
         }
+
+        
     }
 
     private void Show()
