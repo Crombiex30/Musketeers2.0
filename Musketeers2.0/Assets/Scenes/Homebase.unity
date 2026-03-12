@@ -645,7 +645,7 @@ GameObject:
   m_Component:
   - component: {fileID: 943017142}
   m_Layer: 0
-  m_Name: Container
+  m_Name: InteractionContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1270,7 +1270,7 @@ GameObject:
   - component: {fileID: 1438265013}
   - component: {fileID: 1438265012}
   m_Layer: 0
-  m_Name: UI
+  m_Name: BlacksmithUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1813,7 +1813,7 @@ GameObject:
   - component: {fileID: 1708939002}
   - component: {fileID: 1708939001}
   m_Layer: 0
-  m_Name: Canvas
+  m_Name: NPC Hud
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
