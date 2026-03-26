@@ -8,7 +8,7 @@ public class BattleSystem : MonoBehaviour
 
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
-    public Text combatTurn; 
+    public Text turn; 
 
     Unit playerUnit;
     Unit enemyUnit;
@@ -29,6 +29,7 @@ public class BattleSystem : MonoBehaviour
         GameObject enemyGO = Instantiate(enemyPrefab);
         enemyUnit = enemyGO.GetComponent<Unit>();
         
+        turn.text = playerUnit.unitName + "'s turn";
         
     }
 }
