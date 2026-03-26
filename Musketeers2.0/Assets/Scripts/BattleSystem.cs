@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ public class BattleSystem : MonoBehaviour
 
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
-    public Text name; 
+    public Text combatTurn; 
 
     Unit playerUnit;
     Unit enemyUnit;
@@ -28,6 +29,6 @@ public class BattleSystem : MonoBehaviour
         GameObject enemyGO = Instantiate(enemyPrefab);
         enemyUnit = enemyGO.GetComponent<Unit>();
         
-        name.text = enemyUnit.unitName; 
+        
     }
 }
