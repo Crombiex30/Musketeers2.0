@@ -13,10 +13,8 @@ public class Unit : MonoBehaviour
     public Slider healthBar;
 
 
-    public bool TakeDamage(int dmg)
+    public bool IsDead(int currentHP)
     {
-        currentHP -= dmg;
-        
         if (currentHP <= 0)
         {
             return true;
@@ -25,6 +23,11 @@ public class Unit : MonoBehaviour
         {
             return false;
         }
+    }
+
+    public void TakeDamage(int dmg)
+    {
+        currentHP -= dmg;
         
     }
 

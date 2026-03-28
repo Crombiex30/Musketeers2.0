@@ -1,4 +1,7 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using TMPro;
 using UnityEngine;
@@ -8,9 +11,14 @@ public enum BattleState{ START, PLAYERTURN, ENEMYTURN, WON, LOSS }
 public class BattleSystem : MonoBehaviour
 {
     public int time;
+    public int turns;
+    public string randomEvent;
+    System.Random random = new System.Random();
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
-    public Text turn; 
+    public Text hudText; 
+    public TMP_Text eventText;
+    public TMP_Text turnText;
 
     Unit playerUnit;
     Unit enemyUnit;
@@ -34,11 +42,21 @@ public class BattleSystem : MonoBehaviour
 
         GameObject enemyGO = Instantiate(enemyPrefab);
         enemyUnit = enemyGO.GetComponent<Unit>();
+
+
         
-        turn.text = playerUnit.unitName + "'s turn";
+        hudText.text = playerUnit.unitName + "'s turn";
         
         playerHud.SetHUD(playerUnit);
         enemyHud.SetHUD(enemyUnit);
+        
+        eventText.text = "Random Event is occuring...";
+
+        yield return new WaitForSeconds(time);
+
+        SetRandomEvent();
+        eventText.text = randomEvent;
+        turnText.text = "Turns: " + Convert.ToString(turns);
 
         yield return new WaitForSeconds(time);
 
@@ -47,9 +65,21 @@ public class BattleSystem : MonoBehaviour
 
     }
     
+    void SetRandomEvent()
+    {
+        
+        List<string> events = new List<string>{"WetFloor", "CrackedFloor"};
+        turns = random.Next(1,11);
+
+        randomEvent = events[random.Next(0, events.Count)];
+
+    }
+
+
     IEnumerator PlayerAttack()
     {
-        bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
+        enemyUnit.TakeDamage(playerUnit.damage);
+        bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
 
         enemyHud.SetHP(enemyUnit.currentHP);
 
@@ -77,7 +107,7 @@ public class BattleSystem : MonoBehaviour
         playerUnit.Heal(5);
 
         playerHud.SetHP(playerUnit.currentHP);
-        turn.text = "You healed";
+        hudText.text = "You healed";
 
         yield return new WaitForSeconds(time);
 
@@ -90,11 +120,11 @@ public class BattleSystem : MonoBehaviour
     {
         if (state == BattleState.WON)
         {
-            turn.text = "Enemy has been defeated";
+            hudText.text = "Enemy has been defeated";
 
         }else if (state == BattleState.LOSS)
         {
-            turn.text = "Your dead";
+            hudText.text = "Your dead";
 
             
         }
@@ -102,11 +132,13 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-        turn.text = enemyUnit.unitName + "attacks!";
+        hudText.text = enemyUnit.unitName + " attacks!";
 
         yield return new WaitForSeconds(time);
 
-        bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
+        playerUnit.TakeDamage(enemyUnit.damage);
+        bool isDead = playerUnit.IsDead(playerUnit.currentHP);
+        
         
         playerHud.SetHP(playerUnit.currentHP);
 
@@ -131,7 +163,11 @@ public class BattleSystem : MonoBehaviour
 
     void PlayerTurn()
     {
-        turn.text = "Choose an action:";
+        //bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
+        hudText.text = "Choose an action:";
+        //RandomEvent();
+
+        //if ()
     }
 
     public void OnAttackButton()
@@ -152,4 +188,20 @@ public class BattleSystem : MonoBehaviour
         }
         StartCoroutine(PlayerHeal());
     }
+
+    public bool slipped()
+    {
+        
+        int chance = random.Next(1,5);
+       
+        if (chance == 1)
+        {
+           return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 }
