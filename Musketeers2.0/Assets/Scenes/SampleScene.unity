@@ -1014,8 +1014,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4257f47309b5d84790b84bb32b7ab9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  body: {fileID: 0}
-  speed: 10
+  _moveSpeed: 5
+  _rotationSpeed: 500
+  _gravityMultiplier: 2
 --- !u!136 &1304609021
 CapsuleCollider:
   m_ObjectHideFlags: 0
