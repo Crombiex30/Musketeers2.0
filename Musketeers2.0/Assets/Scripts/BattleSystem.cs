@@ -5,18 +5,21 @@ using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public enum BattleState{ START, PLAYERTURN, ENEMYTURN, WON, LOSS }
 public class BattleSystem : MonoBehaviour
-{
+{   
+    
+    public int amountOfEvents = 0;
     public int time;
     public int turns;
     public string randomEvent;
     System.Random random = new System.Random();
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
-    public Text hudText; 
+    public TMP_Text hudText; 
     public TMP_Text eventText;
     public TMP_Text turnText;
 
@@ -55,8 +58,7 @@ public class BattleSystem : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         SetRandomEvent();
-        eventText.text = randomEvent;
-        turnText.text = "Turns: " + Convert.ToString(turns);
+        
 
         yield return new WaitForSeconds(time);
 
@@ -68,16 +70,65 @@ public class BattleSystem : MonoBehaviour
     void SetRandomEvent()
     {
         
-        List<string> events = new List<string>{"WetFloor", "CrackedFloor"};
+        List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
         turns = random.Next(1,11);
 
         randomEvent = events[random.Next(0, events.Count)];
+        
+        eventText.text = randomEvent;
+        turnText.text = randomEvent + " duration: " + turns + " turns left";
 
+    }
+
+    void UpdateEvent()
+    {
+        turnText.text = randomEvent + " duration: " + turns + " turns left";
+    }
+
+    bool ActivateEvent()
+    {
+        
+        switch (randomEvent)
+        {
+            case "Wet Floor":
+                return Slipped();
+            case "Cracked Floor":
+                return TickDamage();
+            default:
+                return false;
+        }
+        
     }
 
 
     IEnumerator PlayerAttack()
     {
+        if (ActivateEvent() )
+        {
+            switch (randomEvent)
+            {
+                case "Wet Floor":
+                    hudText.text = "You slipped.";
+
+                    yield return new WaitForSeconds(time);
+
+                    state = BattleState.ENEMYTURN;
+                    StartCoroutine(EnemyTurn());
+                    yield break;
+                case "Cracked Floor":
+                    hudText.text = "You fell in a hole and took some damage.";
+
+                    yield return new WaitForSeconds(time);
+
+                    playerUnit.TakeDamage(2);
+                    playerHud.SetHP(playerUnit.currentHP);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        state = BattleState.ENEMYTURN;
         enemyUnit.TakeDamage(playerUnit.damage);
         bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
 
@@ -96,14 +147,38 @@ public class BattleSystem : MonoBehaviour
         }
         else
         {
-            state = BattleState.ENEMYTURN;
             StartCoroutine(EnemyTurn());
 
         }
     }
 
     IEnumerator PlayerHeal()
-    {
+    {   
+        if (ActivateEvent() )
+        {
+            switch (randomEvent)
+            {
+                case "Wet Floor":
+                    hudText.text = "You slipped.";
+
+                    yield return new WaitForSeconds(time);
+
+                    state = BattleState.ENEMYTURN;
+                    StartCoroutine(EnemyTurn());
+                    yield break;
+                case "Cracked Floor":
+                    hudText.text = "You fell in a hole and took some damage.";
+                    
+                    yield return new WaitForSeconds(time);
+
+                    playerUnit.TakeDamage(2);
+                    playerHud.SetHP(playerUnit.currentHP);
+                    break;
+                default:
+                    break;
+            }
+        }
+        state = BattleState.ENEMYTURN;
         playerUnit.Heal(5);
 
         playerHud.SetHP(playerUnit.currentHP);
@@ -111,7 +186,7 @@ public class BattleSystem : MonoBehaviour
 
         yield return new WaitForSeconds(time);
 
-        state = BattleState.ENEMYTURN;
+        
         StartCoroutine(EnemyTurn());
 
     }
@@ -132,6 +207,65 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
+        if (ActivateEvent())
+        {
+            switch (randomEvent)
+            {
+                case "Wet Floor":
+                    hudText.text = "Enemy slipped.";
+            
+                    yield return new WaitForSeconds(time);
+                    if (turns > 0)
+                    {
+                        turns --;
+                        UpdateEvent();
+                        
+                        if (turns <= 0)
+                        {
+                            turnText.text = "The ground has dried up.";
+                            eventText.text = "Random Event is occuring...";
+                            amountOfEvents ++;
+                            yield return new WaitForSeconds(time);
+                            if (amountOfEvents != 3)
+                            {
+                                SetRandomEvent();
+                            }
+                            else
+                            {
+                                eventText.text = "Events Finished.";
+                                turnText.text = "";
+                                randomEvent = "None";
+                            }
+                                
+                        }
+                    }
+                    state = BattleState.PLAYERTURN;
+                    PlayerTurn();
+                    yield break;
+                case "Cracked Floor":
+                    hudText.text = "Enemy fell into a hole and took damage.";
+
+                    yield return new WaitForSeconds(time);
+                    
+                    enemyUnit.TakeDamage(2);
+                    enemyHud.SetHP(enemyUnit.currentHP);
+                    if (enemyUnit.IsDead(enemyUnit.currentHP))
+                    {
+                        state = BattleState.WON;
+                        EndBattle();
+
+                        yield return new WaitForSeconds(time);
+
+                        SceneController.EnterZone("Zone 1");
+
+                        yield return new WaitForSeconds(time);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            
+        }
         hudText.text = enemyUnit.unitName + " attacks!";
 
         yield return new WaitForSeconds(time);
@@ -156,6 +290,40 @@ public class BattleSystem : MonoBehaviour
         }
         else
         {
+            if (turns > 0)
+            {
+                turns --;
+                UpdateEvent();
+                
+                if (turns <= 0)
+                {
+                    switch (randomEvent)
+                    {
+                        case "Wet Floor":
+                            turnText.text = "The ground has dried up.";
+                            break;
+                        case "Cracked Floor":
+                            turnText.text = "The ground has been fixed.";
+                            break;
+                        default:
+                            break;
+                    }
+                    eventText.text = "Random Event is occuring...";
+                    amountOfEvents ++;
+                    yield return new WaitForSeconds(time);
+                    if (amountOfEvents != 3)
+                    {
+                        SetRandomEvent();
+                    }
+                    else
+                    {
+                        eventText.text = "Events Finished.";
+                        turnText.text = "";
+                        randomEvent = "None";
+                    }
+                        
+                }
+            }
             state = BattleState.PLAYERTURN;
             PlayerTurn();
         }
@@ -163,11 +331,11 @@ public class BattleSystem : MonoBehaviour
 
     void PlayerTurn()
     {
-        //bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
+        
         hudText.text = "Choose an action:";
-        //RandomEvent();
+        
 
-        //if ()
+        
     }
 
     public void OnAttackButton()
@@ -189,19 +357,39 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(PlayerHeal());
     }
 
-    public bool slipped()
+    bool Slipped()
     {
         
         int chance = random.Next(1,5);
        
-        if (chance == 1)
+        if (chance == 1)  
         {
-           return true;
+            if (state == BattleState.PLAYERTURN)
+            {
+                return true;
+            }
+            else if(state == BattleState.ENEMYTURN)
+            {   
+                
+                return true;
+            }
+            
         }
-        else
+        return false;
+        
+    }
+    bool TickDamage()
+    {   
+        
+        if (state == BattleState.PLAYERTURN)
         {
-            return false;
+            return true;
         }
+        else if(state == BattleState.ENEMYTURN)
+        {           
+            return true;
+        }
+        return false;
     }
 
 }
