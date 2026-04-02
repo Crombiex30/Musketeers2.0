@@ -16,6 +16,7 @@ public class BattleSystem : MonoBehaviour
     public int time;
     public int turns;
     public string randomEvent;
+    public List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
     System.Random random = new System.Random();
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
@@ -70,7 +71,7 @@ public class BattleSystem : MonoBehaviour
     void SetRandomEvent()
     {
         
-        List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
+        
         turns = random.Next(1,11);
 
         randomEvent = events[random.Next(0, events.Count)];
