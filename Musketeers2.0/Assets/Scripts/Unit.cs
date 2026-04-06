@@ -9,6 +9,8 @@ public class Unit : MonoBehaviour
     public int damage;
     public int maxHP;
     public int currentHP;
+
+    public int priority;
     
     public Slider healthBar;
 
