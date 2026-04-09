@@ -18,7 +18,7 @@ public class BattleSystem : MonoBehaviour
     public string randomEvent;
     public List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
     System.Random random = new System.Random();
-    public GameObject playerPrefab;
+    public GameObject tankPrefab;
     public GameObject enemyPrefab;
     public TMP_Text hudText; 
     public TMP_Text eventText;
@@ -41,7 +41,7 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator SetUpBattle()
     {
-        GameObject playerGO = Instantiate(playerPrefab);
+        GameObject playerGO = Instantiate(tankPrefab);
         playerUnit = playerGO.GetComponent<Unit>();
 
         GameObject enemyGO = Instantiate(enemyPrefab);
