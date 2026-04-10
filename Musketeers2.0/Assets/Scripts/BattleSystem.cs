@@ -143,11 +143,7 @@ public class BattleSystem : MonoBehaviour
 
             yield return new WaitForSeconds(time);
 
-<<<<<<< HEAD
-            SceneController.EnterZone("Zone 1");
-=======
             SceneController.EnterZone("TestScene");
->>>>>>> NewTest
         }
         else
         {
@@ -260,11 +256,7 @@ public class BattleSystem : MonoBehaviour
 
                         yield return new WaitForSeconds(time);
 
-<<<<<<< HEAD
-                        SceneController.EnterZone("Zone 1");
-=======
                         SceneController.EnterZone("TestScene");
->>>>>>> NewTest
 
                         yield return new WaitForSeconds(time);
                     }
@@ -293,11 +285,7 @@ public class BattleSystem : MonoBehaviour
 
             yield return new WaitForSeconds(time);
 
-<<<<<<< HEAD
-            SceneController.EnterZone("Homebase");
-=======
             SceneController.EnterZone("TestScene");
->>>>>>> NewTest
 
         }
         else
