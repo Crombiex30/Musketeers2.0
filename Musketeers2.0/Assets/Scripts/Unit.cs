@@ -6,14 +6,14 @@ public class Unit : MonoBehaviour
     
     public string unitName;
     public int unitLevel;
-    public int damage;
+    public float damage;
     public int maxHP;
-    public int currentHP;
+    public float currentHP;
     
     public Slider healthBar;
 
 
-    public bool IsDead(int currentHP)
+    public bool IsDead(float currentHP)
     {
         if (currentHP <= 0)
         {
@@ -25,13 +25,13 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int dmg)
+    public void TakeDamage(float dmg)
     {
         currentHP -= dmg;
         
     }
 
-    public void Heal(int amount)
+    public void Heal(float amount)
     {
         currentHP += amount;
         if (currentHP > maxHP)
