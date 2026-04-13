@@ -2,37 +2,51 @@ using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    
+    [SerializeField] private float intteractDistance = 3f;
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private LayerMask InteractableLayer;
+
+    private Interactable currentInteractable;
+
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        CheckForInteractable();
+        
+        if (currentInteractable != null && Input.GetKeyDown(KeyCode.E))
         {
-            float interactRange = 2f;
-            Collider [] colliderArray = Physics.OverlapSphere(transform.position, interactRange);
-            foreach (Collider collider in colliderArray)
-            {
-                if(collider.TryGetComponent(out NPCInteraction npcInteraction))
-                {
-                    npcInteraction.Interact();
-                }
-            }
+            currentInteractable.Interact();
         }
     }
 
-    public NPCInteraction GetObject()
+    private void CheckForInteractable()
     {
-        float interactRange = 2f;
-        Collider [] colliderArray = Physics.OverlapSphere(transform.position, interactRange);
-        foreach (Collider collider in colliderArray)
+        currentInteractable = null;
+        
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, intteractDistance, InteractableLayer))
         {
-            if(collider.TryGetComponent(out NPCInteraction npcInteraction))
+            currentInteractable = hit.collider.GetComponent<Interactable>();
+
+            if (currentInteractable == null)
             {
-                return npcInteraction;
+                currentInteractable = hit.collider.GetComponentInParent<Interactable>();
             }
         }
-        return null;
     }
 
+    public Interactable GetInteractable()
+    {
+        return currentInteractable;
+    }
 
-
+    private void OnDrawGizmosSelected()
+    {
+        if (playerCamera != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawRay(playerCamera.transform.position, playerCamera.transform.forward * intteractDistance);
+        }
+    }
 }

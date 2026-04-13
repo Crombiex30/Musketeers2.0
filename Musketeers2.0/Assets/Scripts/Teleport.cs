@@ -1,15 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-public class Teleport : MonoBehaviour
+public class Teleport : Interactable
 {
 
     public string scenename;
 
-    public void OnTriggerEnter(Collider collision)
+    public override void Interact()
     {
-        if (collision.CompareTag("Player"))
-        {
-            SceneController.EnterZone(scenename);
-        }
+        SceneController.EnterZone(scenename);
     }
 }
