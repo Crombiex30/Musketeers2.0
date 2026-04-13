@@ -17,7 +17,7 @@ public class NewPlayerMovement : MonoBehaviour
 
     private const string _horizontal = "Horizontal";     //This is the name of the horizontal input axis
     private const string _vertical = "Vertical";         //This is the name of the vertical
-    private void Start()
+    private void Awake()
     {
         _controller = GetComponent<CharacterController>(); //This code is used to get the character controller component from the player object
         body = GetComponent<Rigidbody>();     //This code is used to get the rigidbody component from the player object

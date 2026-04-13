@@ -16,15 +16,14 @@ public class BattleSystem : MonoBehaviour
     public int time;
     public int turns;
     public string randomEvent;
-    public List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
     System.Random random = new System.Random();
-    public GameObject tankPrefab;
+    public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public TMP_Text hudText; 
     public TMP_Text eventText;
     public TMP_Text turnText;
 
-    Unit tankUnit;
+    Unit playerUnit;
     Unit enemyUnit;
 
     public BattleHud playerHud;
@@ -41,17 +40,17 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator SetUpBattle()
     {
-        GameObject tankGO = tankPrefab;
-        tankUnit = tankGO.GetComponent<Unit>();
+        GameObject playerGO = Instantiate(playerPrefab);
+        playerUnit = playerGO.GetComponent<Unit>();
 
-        GameObject enemyGO = enemyPrefab;
+        GameObject enemyGO = Instantiate(enemyPrefab);
         enemyUnit = enemyGO.GetComponent<Unit>();
 
 
         
-        hudText.text = tankUnit.unitName + "'s turn";
+        hudText.text = playerUnit.unitName + "'s turn";
         
-        playerHud.SetHUD(tankUnit);
+        playerHud.SetHUD(playerUnit);
         enemyHud.SetHUD(enemyUnit);
         
         eventText.text = "Random Event is occuring...";
@@ -71,7 +70,7 @@ public class BattleSystem : MonoBehaviour
     void SetRandomEvent()
     {
         
-        
+        List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
         turns = random.Next(1,11);
 
         randomEvent = events[random.Next(0, events.Count)];
@@ -121,8 +120,8 @@ public class BattleSystem : MonoBehaviour
 
                     yield return new WaitForSeconds(time);
 
-                    tankUnit.TakeDamage(2);
-                    playerHud.SetHP(tankUnit.currentHP);
+                    playerUnit.TakeDamage(2);
+                    playerHud.SetHP(playerUnit.currentHP);
                     break;
                 default:
                     break;
@@ -130,7 +129,7 @@ public class BattleSystem : MonoBehaviour
         }
 
         state = BattleState.ENEMYTURN;
-        enemyUnit.TakeDamage(tankUnit.damage);
+        enemyUnit.TakeDamage(playerUnit.damage);
         bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
 
         enemyHud.SetHP(enemyUnit.currentHP);
@@ -172,17 +171,17 @@ public class BattleSystem : MonoBehaviour
                     
                     yield return new WaitForSeconds(time);
 
-                    tankUnit.TakeDamage(2);
-                    playerHud.SetHP(tankUnit.currentHP);
+                    playerUnit.TakeDamage(2);
+                    playerHud.SetHP(playerUnit.currentHP);
                     break;
                 default:
                     break;
             }
         }
         state = BattleState.ENEMYTURN;
-        tankUnit.Heal(5);
+        playerUnit.Heal(5);
 
-        playerHud.SetHP(tankUnit.currentHP);
+        playerHud.SetHP(playerUnit.currentHP);
         hudText.text = "You healed";
 
         yield return new WaitForSeconds(time);
@@ -271,11 +270,11 @@ public class BattleSystem : MonoBehaviour
 
         yield return new WaitForSeconds(time);
 
-        tankUnit.TakeDamage(enemyUnit.damage);
-        bool isDead = tankUnit.IsDead(tankUnit.currentHP);
+        playerUnit.TakeDamage(enemyUnit.damage);
+        bool isDead = playerUnit.IsDead(playerUnit.currentHP);
         
         
-        playerHud.SetHP(tankUnit.currentHP);
+        playerHud.SetHP(playerUnit.currentHP);
 
         yield return new WaitForSeconds(time);
 
