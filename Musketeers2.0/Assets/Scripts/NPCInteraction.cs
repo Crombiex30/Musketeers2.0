@@ -1,21 +1,12 @@
 using System;
 using UnityEngine;
 
-public class NPCInteraction : MonoBehaviour
+public class NPCInteraction : Interactable
 {
     public GameObject container;
-    private InteractUI action;
-    public void Interact()
+    public override void Interact()
     {
-        if (container.activeSelf == false)
-        {
-            container.SetActive(true);
-        }
-        else
-        {
-            container.SetActive(false);
-        }
-        
+        container.SetActive(!container.activeSelf);
     }
 
 

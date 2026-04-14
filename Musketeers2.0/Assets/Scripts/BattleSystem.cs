@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using TMPro;
@@ -12,47 +13,87 @@ public enum BattleState{ START, PLAYERTURN, ENEMYTURN, WON, LOSS }
 public class BattleSystem : MonoBehaviour
 {   
     
-    public int amountOfEvents = 0;
+    /// <summary>
+    /// This part here is for the Dynamic Events System
+    /// </summary>
     public int time;
     public int turns;
+    public int amountOfEvents = 0;
     public string randomEvent;
+    public List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /// <summary>
+    /// This part is what is scene in Unity 
+    /// </summary>
     System.Random random = new System.Random();
-    public GameObject playerPrefab;
+    public GameObject tankPrefab;
+    public GameObject swordPrefab;
     public GameObject enemyPrefab;
     public TMP_Text hudText; 
     public TMP_Text eventText;
     public TMP_Text turnText;
+    public TMP_Text rollDisplay;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
 
-    Unit playerUnit;
+    /// <summary>
+    /// This part is to define units and variables
+    /// </summary>
+    Unit tankUnit;
+    Unit swordUnit;
     Unit enemyUnit;
-
-    public BattleHud playerHud;
+    public BattleState state;
+    public List<Unit> members = new List<Unit>{};
+    public int numRolled = 0;
+    public bool hasDiceRolled;
+    public float damageBoost = 1f;
+    public float healBoost = 1f;
+    
+    /// <summary>
+    /// These are the UI variables 
+    /// </summary>
+    public BattleHud tankHud;
+    public BattleHud swordHud;
     public BattleHud enemyHud;
 
 
-    public BattleState state;
+    
 
     void Start()
     {
         state = BattleState.START;
         StartCoroutine(SetUpBattle());
     }
+    
+    void SetUpParty()
+    {
+        GameObject tankGO = tankPrefab;
+        tankUnit = tankGO.GetComponent<Unit>();
+        tankHud.SetHUD(tankUnit);
+        members.Add(tankUnit);
 
+        GameObject swordGO = swordPrefab;
+        swordUnit = swordGO.GetComponent<Unit>();
+        swordHud.SetHUD(swordUnit);
+        members.Add(swordUnit);
+
+
+
+    }
+    void SetUpEnemy()
+    {
+        GameObject enemyGO = enemyPrefab;
+        enemyUnit = enemyGO.GetComponent<Unit>();
+        enemyHud.SetHUD(enemyUnit);
+    }
     IEnumerator SetUpBattle()
     {
-        GameObject playerGO = Instantiate(playerPrefab);
-        playerUnit = playerGO.GetComponent<Unit>();
-
-        GameObject enemyGO = Instantiate(enemyPrefab);
-        enemyUnit = enemyGO.GetComponent<Unit>();
-
-
-        
-        hudText.text = playerUnit.unitName + "'s turn";
-        
-        playerHud.SetHUD(playerUnit);
-        enemyHud.SetHUD(enemyUnit);
-        
+        SetUpParty();
+        SetUpEnemy();
+        rollDisplay.text = "Roll: " + 0;
+        hudText.text = "Your turn";
         eventText.text = "Random Event is occuring...";
 
         yield return new WaitForSeconds(time);
@@ -66,11 +107,19 @@ public class BattleSystem : MonoBehaviour
         PlayerTurn();
 
     }
+    void PlayerTurn()
+    {
+        
+        hudText.text = "Choose an action:";
+        
+
+        
+    }
     
     void SetRandomEvent()
     {
         
-        List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
+        
         turns = random.Next(1,11);
 
         randomEvent = events[random.Next(0, events.Count)];
@@ -85,7 +134,7 @@ public class BattleSystem : MonoBehaviour
         turnText.text = randomEvent + " duration: " + turns + " turns left";
     }
 
-    bool ActivateEvent()
+    bool ActiveEvent()
     {
         
         switch (randomEvent)
@@ -99,13 +148,9 @@ public class BattleSystem : MonoBehaviour
         }
         
     }
-
-
-    IEnumerator PlayerAttack()
+    IEnumerator ActivateEvent()
     {
-        if (ActivateEvent() )
-        {
-            switch (randomEvent)
+        switch (randomEvent)
             {
                 case "Wet Floor":
                     hudText.text = "You slipped.";
@@ -117,19 +162,27 @@ public class BattleSystem : MonoBehaviour
                     yield break;
                 case "Cracked Floor":
                     hudText.text = "You fell in a hole and took some damage.";
-
+                    
                     yield return new WaitForSeconds(time);
 
-                    playerUnit.TakeDamage(2);
-                    playerHud.SetHP(playerUnit.currentHP);
+                    tankUnit.TakeDamage(2);
+                    tankHud.SetHP(tankUnit.currentHP);
                     break;
                 default:
                     break;
             }
+    }
+
+
+    IEnumerator PlayerAttack()
+    {
+        if (ActiveEvent() )
+        {
+            ActivateEvent();
         }
 
         state = BattleState.ENEMYTURN;
-        enemyUnit.TakeDamage(playerUnit.damage);
+        enemyUnit.TakeDamage(tankUnit.damage * damageBoost);
         bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
 
         enemyHud.SetHP(enemyUnit.currentHP);
@@ -152,9 +205,23 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    IEnumerator PullAggro()
+    {
+        if (ActiveEvent())
+        {
+            ActivateEvent();
+        }
+
+        tankUnit.dangerLevel = 1000;
+
+        yield return new WaitForSeconds(time);
+
+        StartCoroutine(EnemyTurn());
+    }
+
     IEnumerator PlayerHeal()
     {   
-        if (ActivateEvent() )
+        if (ActiveEvent() )
         {
             switch (randomEvent)
             {
@@ -171,17 +238,17 @@ public class BattleSystem : MonoBehaviour
                     
                     yield return new WaitForSeconds(time);
 
-                    playerUnit.TakeDamage(2);
-                    playerHud.SetHP(playerUnit.currentHP);
+                    tankUnit.TakeDamage(2);
+                    tankHud.SetHP(tankUnit.currentHP);
                     break;
                 default:
                     break;
             }
         }
         state = BattleState.ENEMYTURN;
-        playerUnit.Heal(5);
+        tankUnit.Heal(5);
 
-        playerHud.SetHP(playerUnit.currentHP);
+        tankHud.SetHP(tankUnit.currentHP);
         hudText.text = "You healed";
 
         yield return new WaitForSeconds(time);
@@ -189,6 +256,60 @@ public class BattleSystem : MonoBehaviour
         
         StartCoroutine(EnemyTurn());
 
+    }
+
+    Unit Dangerous()
+    {
+        Unit dangerous = null;
+        foreach (Unit member in members){
+            if (dangerous == null || member.dangerLevel > dangerous.dangerLevel  )
+            {
+                if (member.dangerLevel > 0)
+                {
+                    dangerous = member;
+                }
+            }
+            
+            
+        }
+        return dangerous;
+    }
+
+    void PlayerRoll()
+    {
+        numRolled = random.Next(1, 7);
+        if(numRolled == 1)
+        {
+            damageBoost = .50f;
+            healBoost = .25f;
+        }
+        else if(numRolled == 2)
+        {
+            damageBoost = .75f;
+            healBoost = .50f;
+        }
+        else if (numRolled == 3)
+        {
+            damageBoost = 1.50f;
+            healBoost = .75f;
+        }
+        else if (numRolled == 4)
+        {
+            damageBoost = 1.75f;
+            healBoost = 1.25f;
+        }
+        else if(numRolled == 5)
+        {
+            damageBoost = 2.0f;
+            healBoost = 1.25f;
+        }
+        else
+        {
+            damageBoost = 2.5f;
+            healBoost = 2.0f;
+        }
+        hasDiceRolled = true;
+        rollDisplay.text = "Roll: " + numRolled;
     }
 
     void EndBattle()
@@ -207,7 +328,12 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-        if (ActivateEvent())
+        numRolled = 0;
+        damageBoost = 1;
+        healBoost = 1;
+        rollDisplay.text = "Roll: " + numRolled;
+        hasDiceRolled = false;
+        if (ActiveEvent())
         {
             switch (randomEvent)
             {
@@ -270,11 +396,21 @@ public class BattleSystem : MonoBehaviour
 
         yield return new WaitForSeconds(time);
 
-        playerUnit.TakeDamage(enemyUnit.damage);
-        bool isDead = playerUnit.IsDead(playerUnit.currentHP);
+        Unit attackedUnit;
+        attackedUnit = Dangerous();
+        attackedUnit.TakeDamage(enemyUnit.damage);
+        bool isDead = attackedUnit.IsDead(attackedUnit.currentHP);
+        
+        if (attackedUnit == tankUnit)
+        {
+            tankHud.SetHP(tankUnit.currentHP);
+        }
+        else if (attackedUnit == swordUnit)
+        {
+            swordHud.SetHP(swordUnit.currentHP);
+        }
         
         
-        playerHud.SetHP(playerUnit.currentHP);
 
         yield return new WaitForSeconds(time);
 
@@ -329,15 +465,11 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    void PlayerTurn()
-    {
-        
-        hudText.text = "Choose an action:";
-        
+    
 
-        
-    }
-
+    /// <summary>
+    /// The following are buttons pressed.
+    /// </summary>
     public void OnAttackButton()
     {
         if(state != BattleState.PLAYERTURN)
@@ -348,6 +480,15 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(PlayerAttack());
     }
 
+    public void onAggroButton()
+    {
+        if (state != BattleState.PLAYERTURN)
+        {
+            return;
+        }
+        StartCoroutine(PullAggro());
+    }
+
     public void OnHealButton()
     {
         if (state != BattleState.PLAYERTURN)
@@ -356,7 +497,17 @@ public class BattleSystem : MonoBehaviour
         }
         StartCoroutine(PlayerHeal());
     }
-
+    public void OnDiceButton()
+    {
+        if (state != BattleState.PLAYERTURN || hasDiceRolled == true)
+        {
+            return;
+        }
+        PlayerRoll();
+    }
+/// <summary>
+/// The following are effects called during events.
+/// </summary>
     bool Slipped()
     {
         
