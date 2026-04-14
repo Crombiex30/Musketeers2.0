@@ -22,43 +22,67 @@ public class BattleSystem : MonoBehaviour
     public List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    /// <summary>
+    /// This part is what is scene in Unity 
+    /// </summary>
     System.Random random = new System.Random();
     public GameObject tankPrefab;
+    public GameObject swordPrefab;
     public GameObject enemyPrefab;
     public TMP_Text hudText; 
     public TMP_Text eventText;
     public TMP_Text turnText;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
 
+    /// <summary>
+    /// This part is to define units and variables
+    /// </summary>
     Unit tankUnit;
+    Unit swordUnit;
     Unit enemyUnit;
-
-    public BattleHud playerHud;
+    public BattleState state;
+    
+    /// <summary>
+    /// These are the UI variables 
+    /// </summary>
+    public BattleHud tankHud;
+    public BattleHud swordHud;
     public BattleHud enemyHud;
 
 
-    public BattleState state;
+    
 
     void Start()
     {
         state = BattleState.START;
         StartCoroutine(SetUpBattle());
     }
-
-    IEnumerator SetUpBattle()
+    
+    void SetUpParty()
     {
         GameObject tankGO = tankPrefab;
         tankUnit = tankGO.GetComponent<Unit>();
+        tankHud.SetHUD(tankUnit);
+        
 
+        GameObject swordGO = swordPrefab;
+        swordUnit = swordGO.GetComponent<Unit>();
+        swordHud.SetHUD(swordUnit);
+        
+
+
+
+    }
+    IEnumerator SetUpBattle()
+    {
+        SetUpParty();
         GameObject enemyGO = enemyPrefab;
         enemyUnit = enemyGO.GetComponent<Unit>();
-
-
-        
-        hudText.text = tankUnit.unitName + "'s turn";
-        
-        playerHud.SetHUD(tankUnit);
         enemyHud.SetHUD(enemyUnit);
         
+        hudText.text = "Your turn";
         eventText.text = "Random Event is occuring...";
 
         yield return new WaitForSeconds(time);
@@ -71,6 +95,14 @@ public class BattleSystem : MonoBehaviour
         state = BattleState.PLAYERTURN;
         PlayerTurn();
 
+    }
+    void PlayerTurn()
+    {
+        
+        hudText.text = "Choose an action:";
+        
+
+        
     }
     
     void SetRandomEvent()
@@ -127,7 +159,7 @@ public class BattleSystem : MonoBehaviour
                     yield return new WaitForSeconds(time);
 
                     tankUnit.TakeDamage(2);
-                    playerHud.SetHP(tankUnit.currentHP);
+                    tankHud.SetHP(tankUnit.currentHP);
                     break;
                 default:
                     break;
@@ -178,7 +210,7 @@ public class BattleSystem : MonoBehaviour
                     yield return new WaitForSeconds(time);
 
                     tankUnit.TakeDamage(2);
-                    playerHud.SetHP(tankUnit.currentHP);
+                    tankHud.SetHP(tankUnit.currentHP);
                     break;
                 default:
                     break;
@@ -187,7 +219,7 @@ public class BattleSystem : MonoBehaviour
         state = BattleState.ENEMYTURN;
         tankUnit.Heal(5);
 
-        playerHud.SetHP(tankUnit.currentHP);
+        tankHud.SetHP(tankUnit.currentHP);
         hudText.text = "You healed";
 
         yield return new WaitForSeconds(time);
@@ -280,7 +312,7 @@ public class BattleSystem : MonoBehaviour
         bool isDead = tankUnit.IsDead(tankUnit.currentHP);
         
         
-        playerHud.SetHP(tankUnit.currentHP);
+        tankHud.SetHP(tankUnit.currentHP);
 
         yield return new WaitForSeconds(time);
 
@@ -335,15 +367,11 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    void PlayerTurn()
-    {
-        
-        hudText.text = "Choose an action:";
-        
+    
 
-        
-    }
-
+    /// <summary>
+    /// The following are buttons pressed.
+    /// </summary>
     public void OnAttackButton()
     {
         if(state != BattleState.PLAYERTURN)
@@ -362,7 +390,9 @@ public class BattleSystem : MonoBehaviour
         }
         StartCoroutine(PlayerHeal());
     }
-
+/// <summary>
+/// The following are effects called during events.
+/// </summary>
     bool Slipped()
     {
         

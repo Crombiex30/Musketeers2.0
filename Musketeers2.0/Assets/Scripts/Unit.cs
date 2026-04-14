@@ -15,15 +15,6 @@ public class Unit : MonoBehaviour
     public Slider healthBar;
 
 
-    public void initialize(string name, int level, int dmg, int hp, List<string> abilitiesList)
-    {
-        unitName = name;
-        unitLevel = level;
-        damage = dmg;
-        maxHP = hp;
-        currentHP = hp;
-        abilites = abilitiesList;
-    }
 
     public bool IsDead(int currentHP)
     {
