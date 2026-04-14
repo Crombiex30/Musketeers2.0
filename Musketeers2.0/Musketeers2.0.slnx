@@ -1,4 +1,21 @@
 ﻿<Solution>
+<<<<<<< HEAD
+=======
+  <Project Path="Unity.RenderPipelines.GPUDriven.Runtime.csproj" />
+  <Project Path="Unity.ShaderGraph.Editor.csproj" />
+  <Project Path="Unity.RenderPipelines.Core.Runtime.csproj" />
+  <Project Path="Unity.Multiplayer.Center.Editor.csproj" />
+  <Project Path="UnityEngine.UI.csproj" />
+  <Project Path="Unity.RenderPipelines.Core.Editor.csproj" />
+  <Project Path="Unity.RenderPipelines.Universal.2D.Runtime.csproj" />
+  <Project Path="Unity.RenderPipelines.Universal.Editor.csproj" />
+  <Project Path="UnityEngine.TestRunner.csproj" />
+  <Project Path="Unity.2D.Tilemap.Editor.csproj" />
+  <Project Path="PPv2URPConverters.csproj" />
+  <Project Path="UnityEditor.TestRunner.csproj" />
+  <Project Path="Unity.RenderPipelines.Universal.Runtime.csproj" />
+  <Project Path="Unity.UnifiedRayTracing.Runtime.csproj" />
+>>>>>>> NewTest
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>
