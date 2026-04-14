@@ -34,6 +34,7 @@ public class BattleSystem : MonoBehaviour
     public TMP_Text hudText; 
     public TMP_Text eventText;
     public TMP_Text turnText;
+    public TMP_Text rollDisplay;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     
 
@@ -45,6 +46,10 @@ public class BattleSystem : MonoBehaviour
     Unit enemyUnit;
     public BattleState state;
     public List<Unit> members = new List<Unit>{};
+    public int numRolled = 0;
+    public bool hasDiceRolled;
+    public float damageBoost = 1f;
+    public float healBoost = 1f;
     
     /// <summary>
     /// These are the UI variables 
@@ -87,7 +92,7 @@ public class BattleSystem : MonoBehaviour
     {
         SetUpParty();
         SetUpEnemy();
-        
+        rollDisplay.text = "Roll: " + 0;
         hudText.text = "Your turn";
         eventText.text = "Random Event is occuring...";
 
@@ -177,7 +182,7 @@ public class BattleSystem : MonoBehaviour
         }
 
         state = BattleState.ENEMYTURN;
-        enemyUnit.TakeDamage(tankUnit.damage);
+        enemyUnit.TakeDamage(tankUnit.damage * damageBoost);
         bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
 
         enemyHud.SetHP(enemyUnit.currentHP);
@@ -270,6 +275,43 @@ public class BattleSystem : MonoBehaviour
         return dangerous;
     }
 
+    void PlayerRoll()
+    {
+        numRolled = random.Next(1, 7);
+        if(numRolled == 1)
+        {
+            damageBoost = .50f;
+            healBoost = .25f;
+        }
+        else if(numRolled == 2)
+        {
+            damageBoost = .75f;
+            healBoost = .50f;
+        }
+        else if (numRolled == 3)
+        {
+            damageBoost = 1.50f;
+            healBoost = .75f;
+        }
+        else if (numRolled == 4)
+        {
+            damageBoost = 1.75f;
+            healBoost = 1.25f;
+        }
+        else if(numRolled == 5)
+        {
+            damageBoost = 2.0f;
+            healBoost = 1.25f;
+        }
+        else
+        {
+            damageBoost = 2.5f;
+            healBoost = 2.0f;
+        }
+        hasDiceRolled = true;
+        rollDisplay.text = "Roll: " + numRolled;
+    }
+
     void EndBattle()
     {
         if (state == BattleState.WON)
@@ -286,6 +328,11 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
+        numRolled = 0;
+        damageBoost = 1;
+        healBoost = 1;
+        rollDisplay.text = "Roll: " + numRolled;
+        hasDiceRolled = false;
         if (ActiveEvent())
         {
             switch (randomEvent)
@@ -449,6 +496,14 @@ public class BattleSystem : MonoBehaviour
             return;
         }
         StartCoroutine(PlayerHeal());
+    }
+    public void OnDiceButton()
+    {
+        if (state != BattleState.PLAYERTURN || hasDiceRolled == true)
+        {
+            return;
+        }
+        PlayerRoll();
     }
 /// <summary>
 /// The following are effects called during events.
