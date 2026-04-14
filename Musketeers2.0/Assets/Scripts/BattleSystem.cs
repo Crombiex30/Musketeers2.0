@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using TMPro;
@@ -43,6 +44,7 @@ public class BattleSystem : MonoBehaviour
     Unit swordUnit;
     Unit enemyUnit;
     public BattleState state;
+    public List<Unit> members = new List<Unit>{};
     
     /// <summary>
     /// These are the UI variables 
@@ -65,22 +67,26 @@ public class BattleSystem : MonoBehaviour
         GameObject tankGO = tankPrefab;
         tankUnit = tankGO.GetComponent<Unit>();
         tankHud.SetHUD(tankUnit);
-        
+        members.Add(tankUnit);
 
         GameObject swordGO = swordPrefab;
         swordUnit = swordGO.GetComponent<Unit>();
         swordHud.SetHUD(swordUnit);
-        
+        members.Add(swordUnit);
 
 
 
     }
-    IEnumerator SetUpBattle()
+    void SetUpEnemy()
     {
-        SetUpParty();
         GameObject enemyGO = enemyPrefab;
         enemyUnit = enemyGO.GetComponent<Unit>();
         enemyHud.SetHUD(enemyUnit);
+    }
+    IEnumerator SetUpBattle()
+    {
+        SetUpParty();
+        SetUpEnemy();
         
         hudText.text = "Your turn";
         eventText.text = "Random Event is occuring...";
@@ -123,7 +129,7 @@ public class BattleSystem : MonoBehaviour
         turnText.text = randomEvent + " duration: " + turns + " turns left";
     }
 
-    bool ActivateEvent()
+    bool ActiveEvent()
     {
         
         switch (randomEvent)
@@ -137,13 +143,9 @@ public class BattleSystem : MonoBehaviour
         }
         
     }
-
-
-    IEnumerator PlayerAttack()
+    IEnumerator ActivateEvent()
     {
-        if (ActivateEvent() )
-        {
-            switch (randomEvent)
+        switch (randomEvent)
             {
                 case "Wet Floor":
                     hudText.text = "You slipped.";
@@ -155,7 +157,7 @@ public class BattleSystem : MonoBehaviour
                     yield break;
                 case "Cracked Floor":
                     hudText.text = "You fell in a hole and took some damage.";
-
+                    
                     yield return new WaitForSeconds(time);
 
                     tankUnit.TakeDamage(2);
@@ -164,6 +166,14 @@ public class BattleSystem : MonoBehaviour
                 default:
                     break;
             }
+    }
+
+
+    IEnumerator PlayerAttack()
+    {
+        if (ActiveEvent() )
+        {
+            ActivateEvent();
         }
 
         state = BattleState.ENEMYTURN;
@@ -190,9 +200,23 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    IEnumerator PullAggro()
+    {
+        if (ActiveEvent())
+        {
+            ActivateEvent();
+        }
+
+        tankUnit.dangerLevel = 1000;
+
+        yield return new WaitForSeconds(time);
+
+        StartCoroutine(EnemyTurn());
+    }
+
     IEnumerator PlayerHeal()
     {   
-        if (ActivateEvent() )
+        if (ActiveEvent() )
         {
             switch (randomEvent)
             {
@@ -229,6 +253,23 @@ public class BattleSystem : MonoBehaviour
 
     }
 
+    Unit Dangerous()
+    {
+        Unit dangerous = null;
+        foreach (Unit member in members){
+            if (dangerous == null || member.dangerLevel > dangerous.dangerLevel  )
+            {
+                if (member.dangerLevel > 0)
+                {
+                    dangerous = member;
+                }
+            }
+            
+            
+        }
+        return dangerous;
+    }
+
     void EndBattle()
     {
         if (state == BattleState.WON)
@@ -245,7 +286,7 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-        if (ActivateEvent())
+        if (ActiveEvent())
         {
             switch (randomEvent)
             {
@@ -308,11 +349,21 @@ public class BattleSystem : MonoBehaviour
 
         yield return new WaitForSeconds(time);
 
-        tankUnit.TakeDamage(enemyUnit.damage);
-        bool isDead = tankUnit.IsDead(tankUnit.currentHP);
+        Unit attackedUnit;
+        attackedUnit = Dangerous();
+        attackedUnit.TakeDamage(enemyUnit.damage);
+        bool isDead = attackedUnit.IsDead(attackedUnit.currentHP);
+        
+        if (attackedUnit == tankUnit)
+        {
+            tankHud.SetHP(tankUnit.currentHP);
+        }
+        else if (attackedUnit == swordUnit)
+        {
+            swordHud.SetHP(swordUnit.currentHP);
+        }
         
         
-        tankHud.SetHP(tankUnit.currentHP);
 
         yield return new WaitForSeconds(time);
 
@@ -380,6 +431,15 @@ public class BattleSystem : MonoBehaviour
         }
 
         StartCoroutine(PlayerAttack());
+    }
+
+    public void onAggroButton()
+    {
+        if (state != BattleState.PLAYERTURN)
+        {
+            return;
+        }
+        StartCoroutine(PullAggro());
     }
 
     public void OnHealButton()

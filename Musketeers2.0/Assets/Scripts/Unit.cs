@@ -10,6 +10,7 @@ public class Unit : MonoBehaviour
     public int damage;
     public int maxHP;
     public int currentHP;
+    public int dangerLevel;
     public List<string> abilites = new List<string>{""};
     
     public Slider healthBar;
