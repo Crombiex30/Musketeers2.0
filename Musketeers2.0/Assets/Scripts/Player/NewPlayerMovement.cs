@@ -4,40 +4,48 @@ using System.Collections.Generic;
 
 public class NewPlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float _moveSpeed = 5f;          //This is the speed of the player movement
-    [SerializeField] private float _rotationSpeed = 500f;    //This is the speed of the player rotation
-    [SerializeField] private float _gravityMultiplier = 2f;      //This is the force applied to the player when they are in the air
+    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _rotationSpeed = 500f;
+    [SerializeField] private float _gravityMultiplier = 2f;
 
-    private CharacterController _controller;          // This is the call to the character controller placed into a variable
-    private float _downwardForce;                   //This is the force applied to the player when they are in the air to make them fall down
-    private Rigidbody body;              // This is the call to the rigidbody placed into a variable
-    private Vector3 _movement;                   //This speed is the movement speed
+    [SerializeField] private AudioSource _footstepSource; 
 
-    private Animator _animator;                   //This is the call to the animator placed into a variable
+    private CharacterController _controller;
+    private float _downwardForce;
+    private Rigidbody body;
+    private Vector3 _movement;
 
-    private const string _horizontal = "Horizontal";     //This is the name of the horizontal input axis
-    private const string _vertical = "Vertical";         //This is the name of the vertical
+    private Animator _animator;
+
+    private const string _horizontal = "Horizontal";
+    private const string _vertical = "Vertical";
+
     private void Awake()
     {
-        _controller = GetComponent<CharacterController>(); //This code is used to get the character controller component from the player object
-        body = GetComponent<Rigidbody>();     //This code is used to get the rigidbody component from the player object
-        _animator = GetComponent<Animator>(); //This code is used to get the animator component from the player object
+        _controller = GetComponent<CharacterController>();
+        body = GetComponent<Rigidbody>();
+        _animator = GetComponent<Animator>();
+        
+        if (_footstepSource == null) 
+        {
+            Debug.LogWarning("Footstep Source is missing on the Player!");
+        }
     }
+
     private void Update()
     {
-        
-        _movement.Set(InputManager.Movement.x, 0, InputManager.Movement.y);     //This code is used to set the movement vector to the input from the player
+        _movement.Set(InputManager.Movement.x, 0, InputManager.Movement.y);
         _controller.Move(_movement * _moveSpeed * Time.deltaTime);
 
         body.linearVelocity = new Vector3(_movement.x, body.linearVelocity.y, _movement.z) * _moveSpeed;
 
         if (!_controller.isGrounded)
         {
-            _downwardForce += Physics.gravity.y * _gravityMultiplier * Time.deltaTime;     //This code is used to apply gravity to the player when they are in the air
+            _downwardForce += Physics.gravity.y * _gravityMultiplier * Time.deltaTime;
         }
         else
         {
-            _downwardForce = 0f;     //This code is used to reset the downward force when the player is on the ground
+            _downwardForce = 0f;
         }
 
         _movement.y = _downwardForce;
@@ -52,5 +60,28 @@ public class NewPlayerMovement : MonoBehaviour
         _animator.SetFloat(_horizontal, _movement.x);
         _animator.SetFloat(_vertical, _movement.z);
 
+        HandleFootstepSound();
+    }
+
+    private void HandleFootstepSound()
+    {
+        bool isMoving = InputManager.Movement.sqrMagnitude > 0.01f;
+
+        if (isMoving && _controller.isGrounded)
+        {
+            if (!_footstepSource.isPlaying)
+            {
+                _footstepSource.Play();
+            }
+        }
+        else
+        {
+            if (_footstepSource.isPlaying)
+            {
+                _footstepSource.Stop();
+            }
+        }
+
+        
     }
 }
