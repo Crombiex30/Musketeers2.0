@@ -30,6 +30,8 @@ public class BattleSystem : MonoBehaviour
     System.Random random = new System.Random();
     public GameObject tankPrefab;
     public GameObject swordPrefab;
+    public GameObject healerPrefab;
+    public GameObject rangerPrefab;
     public GameObject enemyPrefab;
     public TMP_Text hudText; 
     public TMP_Text eventText;
@@ -43,6 +45,8 @@ public class BattleSystem : MonoBehaviour
     /// </summary>
     Unit tankUnit;
     Unit swordUnit;
+    Unit healerUnit;
+    Unit rangerUnit;
     Unit enemyUnit;
     public BattleState state;
     public List<Unit> members = new List<Unit>{};
@@ -56,6 +60,8 @@ public class BattleSystem : MonoBehaviour
     /// </summary>
     public BattleHud tankHud;
     public BattleHud swordHud;
+    public BattleHud healerHud;
+    public BattleHud rangerHud;
     public BattleHud enemyHud;
 
 
@@ -79,7 +85,15 @@ public class BattleSystem : MonoBehaviour
         swordHud.SetHUD(swordUnit);
         members.Add(swordUnit);
 
+        GameObject healerGO = healerPrefab;
+        healerUnit = healerGO.GetComponent<Unit>();
+        healerHud.SetHUD(healerUnit);
+        members.Add(healerUnit);
 
+        GameObject rangerGO = rangerPrefab;
+        rangerUnit = rangerGO.GetComponent<Unit>();
+        rangerHud.SetHUD(rangerUnit);
+        members.Add(rangerUnit);
 
     }
     void SetUpEnemy()
@@ -223,27 +237,7 @@ public class BattleSystem : MonoBehaviour
     {   
         if (ActiveEvent() )
         {
-            switch (randomEvent)
-            {
-                case "Wet Floor":
-                    hudText.text = "You slipped.";
-
-                    yield return new WaitForSeconds(time);
-
-                    state = BattleState.ENEMYTURN;
-                    StartCoroutine(EnemyTurn());
-                    yield break;
-                case "Cracked Floor":
-                    hudText.text = "You fell in a hole and took some damage.";
-                    
-                    yield return new WaitForSeconds(time);
-
-                    tankUnit.TakeDamage(2);
-                    tankHud.SetHP(tankUnit.currentHP);
-                    break;
-                default:
-                    break;
-            }
+             ActivateEvent();
         }
         state = BattleState.ENEMYTURN;
         tankUnit.Heal(5);
@@ -480,7 +474,7 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(PlayerAttack());
     }
 
-    public void onAggroButton()
+    public void OnAggroButton()
     {
         if (state != BattleState.PLAYERTURN)
         {
