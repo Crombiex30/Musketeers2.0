@@ -18,6 +18,7 @@ public class BattleSystem : MonoBehaviour
     /// </summary>
     public int time;
     public int turns;
+    public int turnsPassed;
     public int amountOfEvents = 0;
     public string randomEvent;
     public List<string> events = new List<string>{"Wet Floor", "Cracked Floor"};
@@ -54,6 +55,11 @@ public class BattleSystem : MonoBehaviour
     public bool hasDiceRolled;
     public float damageBoost = 1f;
     public float healBoost = 1f;
+    CombatManager hud;
+    public int combatTurns;
+    private int ultDefstartTurn = -1;
+    private bool ultDefActive = false;
+
     
     /// <summary>
     /// These are the UI variables 
@@ -181,6 +187,15 @@ public class BattleSystem : MonoBehaviour
 
                     tankUnit.TakeDamage(2);
                     tankHud.SetHP(tankUnit.currentHP);
+
+                    swordUnit.TakeDamage(2);
+                    swordHud.SetHP(swordUnit.currentHP);
+
+                    healerUnit.TakeDamage(2);
+                    healerHud.SetHP(healerUnit.currentHP);
+                    
+                    rangerUnit.TakeDamage(2);
+                    rangerHud.SetHP(rangerUnit.currentHP);
                     break;
                 default:
                     break;
@@ -192,11 +207,13 @@ public class BattleSystem : MonoBehaviour
     {
         if (ActiveEvent() )
         {
-            ActivateEvent();
+            StartCoroutine(ActivateEvent());
         }
 
         state = BattleState.ENEMYTURN;
+        
         enemyUnit.TakeDamage(tankUnit.damage * damageBoost);
+        
         bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
 
         enemyHud.SetHP(enemyUnit.currentHP);
@@ -218,6 +235,9 @@ public class BattleSystem : MonoBehaviour
 
         }
     }
+/// <summary>
+/// All of these are Tank Abilities
+/// </summary>
 
     IEnumerator PullAggro()
     {
@@ -233,6 +253,63 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(EnemyTurn());
     }
 
+    IEnumerator Bash()
+    {
+        if (ActiveEvent())
+        {
+            ActivateEvent();
+        }
+
+        state = BattleState.ENEMYTURN;
+        enemyUnit.TakeDamage((tankUnit.damage + 3) * damageBoost);
+        bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
+
+        enemyHud.SetHP(enemyUnit.currentHP);
+
+        yield return new WaitForSeconds(time);
+
+        if (isDead)
+        {
+            state = BattleState.WON;
+            EndBattle();
+
+            yield return new WaitForSeconds(time);
+
+            SceneController.EnterZone("TestScene");
+        }
+        else
+        {
+            StartCoroutine(EnemyTurn());
+
+        }
+
+
+    }
+
+    IEnumerator UltDef()
+    {
+        if (ActiveEvent())
+        {
+            ActivateEvent();
+        }
+
+        ultDefstartTurn = combatTurns;
+        ultDefActive = true;
+        
+        if (ultDefActive)
+        {
+            enemyUnit.damage = 0;
+        }
+
+        yield return new WaitForSeconds(time);
+
+        state = BattleState.ENEMYTURN;
+        StartCoroutine(EnemyTurn());
+        
+
+    }
+// End of Tanks Abilites
+//////////////////////////////////////////////////////////
     IEnumerator PlayerHeal()
     {   
         if (ActiveEvent() )
@@ -322,6 +399,16 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
+        combatTurns++;
+        if (ultDefActive)
+        {
+            turnsPassed = combatTurns - ultDefstartTurn;
+            if (turnsPassed >= 2)
+            {
+                ultDefActive = false;
+                ultDefstartTurn = -1;
+            }
+        }
         numRolled = 0;
         damageBoost = 1;
         healBoost = 1;
@@ -473,7 +560,8 @@ public class BattleSystem : MonoBehaviour
 
         StartCoroutine(PlayerAttack());
     }
-
+/////////////////////////////////////////////////////////////
+/// This are Tank Buttons
     public void OnAggroButton()
     {
         if (state != BattleState.PLAYERTURN)
@@ -483,6 +571,26 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(PullAggro());
     }
 
+    public void OnBashButton()
+    {
+        if (state != BattleState.PLAYERTURN)
+        {
+            return;
+        }
+        
+        StartCoroutine(Bash());
+
+    }
+
+    public void OnUltDefButton()
+    {
+         if (state != BattleState.PLAYERTURN)
+        {
+            return;
+        }
+        StartCoroutine(UltDef());
+    }
+//////////////////////////////////////////////////////////////
     public void OnHealButton()
     {
         if (state != BattleState.PLAYERTURN)
