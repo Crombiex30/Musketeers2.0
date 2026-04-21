@@ -243,7 +243,7 @@ public class BattleSystem : MonoBehaviour
     {
         if (ActiveEvent())
         {
-            ActivateEvent();
+            StartCoroutine(ActivateEvent());
         }
 
         tankUnit.dangerLevel = 1000;
@@ -257,7 +257,7 @@ public class BattleSystem : MonoBehaviour
     {
         if (ActiveEvent())
         {
-            ActivateEvent();
+            StartCoroutine(ActivateEvent());
         }
 
         state = BattleState.ENEMYTURN;
@@ -290,7 +290,7 @@ public class BattleSystem : MonoBehaviour
     {
         if (ActiveEvent())
         {
-            ActivateEvent();
+            StartCoroutine(ActivateEvent());
         }
 
         ultDefstartTurn = combatTurns;
@@ -314,7 +314,7 @@ public class BattleSystem : MonoBehaviour
     {   
         if (ActiveEvent() )
         {
-             ActivateEvent();
+            StartCoroutine(ActivateEvent());
         }
         state = BattleState.ENEMYTURN;
         tankUnit.Heal(5);
