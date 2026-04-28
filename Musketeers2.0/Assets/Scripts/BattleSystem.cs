@@ -34,7 +34,7 @@ public class BattleSystem : MonoBehaviour
     public GameObject healerPrefab;
     public GameObject rangerPrefab;
     public GameObject enemyPrefab;
-    public TMP_Text hudText; 
+    public TMP_Text sitText; 
     public TMP_Text eventText;
     public TMP_Text turnText;
     public TMP_Text rollDisplay;
@@ -113,7 +113,7 @@ public class BattleSystem : MonoBehaviour
         SetUpParty();
         SetUpEnemy();
         rollDisplay.text = "Roll: " + 0;
-        hudText.text = "Your turn";
+        sitText.text = "Your turn";
         eventText.text = "Random Event is occuring...";
 
         yield return new WaitForSeconds(time);
@@ -130,7 +130,7 @@ public class BattleSystem : MonoBehaviour
     void PlayerTurn()
     {
         
-        hudText.text = "Choose an action:";
+        sitText.text = "Choose an action:";
         
 
         
@@ -173,7 +173,7 @@ public class BattleSystem : MonoBehaviour
         switch (randomEvent)
             {
                 case "Wet Floor":
-                    hudText.text = "You slipped.";
+                    sitText.text = "You slipped.";
 
                     yield return new WaitForSeconds(time);
 
@@ -181,7 +181,7 @@ public class BattleSystem : MonoBehaviour
                     StartCoroutine(EnemyTurn());
                     yield break;
                 case "Cracked Floor":
-                    hudText.text = "You fell in a hole and took some damage.";
+                    sitText.text = "You fell in a hole and took some damage.";
                     
                     yield return new WaitForSeconds(time);
 
@@ -248,6 +248,8 @@ public class BattleSystem : MonoBehaviour
 
         tankUnit.dangerLevel = 1000;
 
+        sitText.text = "Tank has attracted the attention of everyone";
+
         yield return new WaitForSeconds(time);
 
         StartCoroutine(EnemyTurn());
@@ -259,6 +261,8 @@ public class BattleSystem : MonoBehaviour
         {
             StartCoroutine(ActivateEvent());
         }
+
+        sitText.text = "Tank bashed into the enemy.";
 
         state = BattleState.ENEMYTURN;
         enemyUnit.TakeDamage((tankUnit.damage + 3) * damageBoost);
@@ -293,6 +297,9 @@ public class BattleSystem : MonoBehaviour
             StartCoroutine(ActivateEvent());
         }
 
+        sitText.text = "Tank calls upon the ultimate defence";
+
+
         ultDefstartTurn = combatTurns;
         ultDefActive = true;
         
@@ -320,7 +327,7 @@ public class BattleSystem : MonoBehaviour
         tankUnit.Heal(5);
 
         tankHud.SetHP(tankUnit.currentHP);
-        hudText.text = "You healed";
+        sitText.text = "You healed";
 
         yield return new WaitForSeconds(time);
 
@@ -387,11 +394,11 @@ public class BattleSystem : MonoBehaviour
     {
         if (state == BattleState.WON)
         {
-            hudText.text = "Enemy has been defeated";
+            sitText.text = "Enemy has been defeated";
 
         }else if (state == BattleState.LOSS)
         {
-            hudText.text = "Your dead";
+            sitText.text = "Your dead";
 
             
         }
@@ -407,6 +414,7 @@ public class BattleSystem : MonoBehaviour
             {
                 ultDefActive = false;
                 ultDefstartTurn = -1;
+                sitText.text = "Protection has ended.";
             }
         }
         numRolled = 0;
@@ -419,7 +427,7 @@ public class BattleSystem : MonoBehaviour
             switch (randomEvent)
             {
                 case "Wet Floor":
-                    hudText.text = "Enemy slipped.";
+                    sitText.text = "Enemy slipped.";
             
                     yield return new WaitForSeconds(time);
                     if (turns > 0)
@@ -450,7 +458,7 @@ public class BattleSystem : MonoBehaviour
                     PlayerTurn();
                     yield break;
                 case "Cracked Floor":
-                    hudText.text = "Enemy fell into a hole and took damage.";
+                    sitText.text = "Enemy fell into a hole and took damage.";
 
                     yield return new WaitForSeconds(time);
                     
@@ -473,7 +481,7 @@ public class BattleSystem : MonoBehaviour
             }
             
         }
-        hudText.text = enemyUnit.unitName + " attacks!";
+        sitText.text = enemyUnit.unitName + " attacks!";
 
         yield return new WaitForSeconds(time);
 
