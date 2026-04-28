@@ -5,6 +5,7 @@ using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using TMPro;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -57,8 +58,9 @@ public class BattleSystem : MonoBehaviour
     public float healBoost = 1f;
     CombatManager hud;
     public int combatTurns;
-    private int ultDefstartTurn = -1;
-    private bool ultDefActive = false;
+    private int ultDefstartTurn = 0;
+    public bool ultDefActive = false;
+    private float prev;
 
     
     /// <summary>
@@ -107,6 +109,7 @@ public class BattleSystem : MonoBehaviour
         GameObject enemyGO = enemyPrefab;
         enemyUnit = enemyGO.GetComponent<Unit>();
         enemyHud.SetHUD(enemyUnit);
+        prev = enemyUnit.damage;
     }
     IEnumerator SetUpBattle()
     {
@@ -410,11 +413,14 @@ public class BattleSystem : MonoBehaviour
         if (ultDefActive)
         {
             turnsPassed = combatTurns - ultDefstartTurn;
-            if (turnsPassed >= 2)
+            if (turnsPassed > 2)
             {
                 ultDefActive = false;
-                ultDefstartTurn = -1;
+                ultDefstartTurn = 0;
+                enemyUnit.damage = prev;
                 sitText.text = "Protection has ended.";
+                yield return new WaitForSeconds(time);
+
             }
         }
         numRolled = 0;
