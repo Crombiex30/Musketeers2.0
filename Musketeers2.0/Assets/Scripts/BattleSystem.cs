@@ -56,12 +56,11 @@ public class BattleSystem : MonoBehaviour
     public bool hasDiceRolled;
     public float damageBoost = 1f;
     public float healBoost = 1f;
-    //CombatManager hud;
+    CombatManager hud;
     List<StatusEffect> activeEffects = new List<StatusEffect>();
     public int combatTurns;
-    //private int ultDefstartTurn = 0;
-    public bool ultDefActive = false;
     private float prev;
+    private int prevDanger;
 
     
     /// <summary>
@@ -205,7 +204,40 @@ public class BattleSystem : MonoBehaviour
                     break;
             }
     }
+/// <summary>
+/// This code piece checks and updates effects based on when they were activated.
+/// </summary>
+    void updateEffect()
+    {
+        combatTurns++;
+        for (int i = activeEffects.Count - 1; i >= 0; i--)
+        {
+            var effect = activeEffects[i];
+            int turnsPassed = combatTurns - effect.startTurn;
 
+            if (turnsPassed > effect.duration)
+            {
+                switch (effect.name)
+                {
+                    case "UltDef":
+                        enemyUnit.damage = prev;
+                        sitText.text = "Protection has ended.";
+                        break;
+                    case "PullAgro":
+                        tankUnit.dangerLevel = prevDanger;
+                        sitText.text = "Enemies have lost interest in Tank.";
+                        break;
+                    default:
+                        break;
+                }
+
+                activeEffects.RemoveAt(i);
+            }
+        }
+    }
+/// <summary>
+/// This creates an effect so that it can be added to a list and be kept track of.
+/// </summary>
     class StatusEffect
     {
         public string name;
@@ -255,10 +287,12 @@ public class BattleSystem : MonoBehaviour
         {
             StartCoroutine(ActivateEvent());
         }
-
+        prevDanger = tankUnit.dangerLevel;
         tankUnit.dangerLevel = 1000;
 
         sitText.text = "Tank has attracted the attention of everyone";
+
+        activeEffects.Add(new StatusEffect { name = "PullAgro", startTurn = combatTurns, duration = 2});
 
         yield return new WaitForSeconds(time);
 
@@ -415,24 +449,8 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-        combatTurns++;
-        for (int i = activeEffects.Count - 1; i >= 0; i--)
-        {
-            var effect = activeEffects[i];
-            int turnsPassed = combatTurns - effect.startTurn;
-
-            if (turnsPassed > effect.duration)
-            {
-                if (effect.name == "UltDef")
-                {
-                    enemyUnit.damage = prev;
-                    sitText.text = "Protection has ended.";
-                    yield return new WaitForSeconds(time);
-                }
-
-                activeEffects.RemoveAt(i);
-            }
-        }
+        updateEffect();
+        yield return new WaitForSeconds(time);
         numRolled = 0;
         damageBoost = 1;
         healBoost = 1;
