@@ -56,9 +56,10 @@ public class BattleSystem : MonoBehaviour
     public bool hasDiceRolled;
     public float damageBoost = 1f;
     public float healBoost = 1f;
-    CombatManager hud;
+    //CombatManager hud;
+    List<StatusEffect> activeEffects = new List<StatusEffect>();
     public int combatTurns;
-    private int ultDefstartTurn = 0;
+    //private int ultDefstartTurn = 0;
     public bool ultDefActive = false;
     private float prev;
 
@@ -205,6 +206,12 @@ public class BattleSystem : MonoBehaviour
             }
     }
 
+    class StatusEffect
+    {
+        public string name;
+        public int startTurn;
+        public int duration;
+    }
 
     IEnumerator PlayerAttack()
     {
@@ -302,11 +309,10 @@ public class BattleSystem : MonoBehaviour
 
         sitText.text = "Tank calls upon the ultimate defence";
 
-
-        ultDefstartTurn = combatTurns;
-        ultDefActive = true;
+        activeEffects.Add(new StatusEffect { name = "UltDef", startTurn = combatTurns, duration = 2});
         
-        if (ultDefActive)
+        
+        if (activeEffects.Exists(effect => effect.name == "UltDef"))
         {
             enemyUnit.damage = 0;
         }
@@ -410,17 +416,21 @@ public class BattleSystem : MonoBehaviour
     IEnumerator EnemyTurn()
     {
         combatTurns++;
-        if (ultDefActive)
+        for (int i = activeEffects.Count - 1; i >= 0; i--)
         {
-            turnsPassed = combatTurns - ultDefstartTurn;
-            if (turnsPassed > 2)
-            {
-                ultDefActive = false;
-                ultDefstartTurn = 0;
-                enemyUnit.damage = prev;
-                sitText.text = "Protection has ended.";
-                yield return new WaitForSeconds(time);
+            var effect = activeEffects[i];
+            int turnsPassed = combatTurns - effect.startTurn;
 
+            if (turnsPassed > effect.duration)
+            {
+                if (effect.name == "UltDef")
+                {
+                    enemyUnit.damage = prev;
+                    sitText.text = "Protection has ended.";
+                    yield return new WaitForSeconds(time);
+                }
+
+                activeEffects.RemoveAt(i);
             }
         }
         numRolled = 0;
