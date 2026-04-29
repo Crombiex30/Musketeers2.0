@@ -50,13 +50,14 @@ public class BattleSystem : MonoBehaviour
     Unit healerUnit;
     Unit rangerUnit;
     Unit enemyUnit;
+    Unit empty;
     public BattleState state;
     public List<Unit> members = new List<Unit>{};
     public int numRolled = 0;
     public bool hasDiceRolled;
     public float damageBoost = 1f;
     public float healBoost = 1f;
-    CombatManager hud;
+    public CombatManager hud;
     List<StatusEffect> activeEffects = new List<StatusEffect>();
     public int combatTurns;
     private float prev;
@@ -235,6 +236,30 @@ public class BattleSystem : MonoBehaviour
             }
         }
     }
+
+    Unit selectedCharacter()
+    {
+        if (hud.tank == true)
+        {   
+            Debug.Log("Tank");
+            return tankUnit;
+
+        }else if(hud.sword == true)
+        {
+            Debug.Log("Sword");
+            return swordUnit;
+        } else if (hud.healer == true)
+        {
+            Debug.Log("Healer");
+            return healerUnit;
+        }else if(hud.ranger == true)
+        {
+            Debug.Log("Ranger");
+            return rangerUnit;
+        }
+
+        return empty;
+    }
 /// <summary>
 /// This creates an effect so that it can be added to a list and be kept track of.
 /// </summary>
@@ -247,6 +272,7 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator PlayerAttack()
     {
+        Unit selectedChar = selectedCharacter();
         if (ActiveEvent() )
         {
             StartCoroutine(ActivateEvent());
@@ -254,7 +280,7 @@ public class BattleSystem : MonoBehaviour
 
         state = BattleState.ENEMYTURN;
         
-        enemyUnit.TakeDamage(tankUnit.damage * damageBoost);
+        enemyUnit.TakeDamage(selectedChar.damage* damageBoost);
         
         bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
 
@@ -340,6 +366,7 @@ public class BattleSystem : MonoBehaviour
         {
             StartCoroutine(ActivateEvent());
         }
+        state = BattleState.ENEMYTURN;
 
         sitText.text = "Tank calls upon the ultimate defence";
 
@@ -353,13 +380,57 @@ public class BattleSystem : MonoBehaviour
 
         yield return new WaitForSeconds(time);
 
-        state = BattleState.ENEMYTURN;
+        
         StartCoroutine(EnemyTurn());
         
 
     }
 // End of Tanks Abilites
 //////////////////////////////////////////////////////////
+/// Start of Sword Abilities
+
+    IEnumerator SwordSlash()
+    {
+        if (ActiveEvent())
+        {
+            StartCoroutine(ActivateEvent());
+        }
+        sitText.text = "Sword slash at the enemy.";
+
+        state = BattleState.ENEMYTURN;
+        enemyUnit.TakeDamage((swordUnit.damage + 3) * damageBoost);
+        bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
+
+        enemyHud.SetHP(enemyUnit.currentHP);
+
+        yield return new WaitForSeconds(time);
+
+        if (isDead)
+        {
+            state = BattleState.WON;
+            EndBattle();
+
+            yield return new WaitForSeconds(time);
+
+            SceneController.EnterZone("TestScene");
+        }
+        else
+        {
+            StartCoroutine(EnemyTurn());
+
+        }
+    }
+
+
+
+///End of Sword Abilities
+///////////////////////////////////////////////////////////
+/// Start of Healer Abilities
+/// End of Healer Abilities
+////////////////////////////////////////////////////////////
+/// Start of Ranger Abilities
+/// End of Ranger Abilities
+///////////////////////////////////////////////////////////
     IEnumerator PlayerHeal()
     {   
         if (ActiveEvent() )
@@ -633,6 +704,16 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(UltDef());
     }
 //////////////////////////////////////////////////////////////
+/// These are Sword Buttons
+    public void OnSwordSlashButton()
+    {
+        if (state != BattleState.PLAYERTURN)
+        {
+            return;
+        }
+        StartCoroutine(SwordSlash());
+    }
+
     public void OnHealButton()
     {
         if (state != BattleState.PLAYERTURN)
