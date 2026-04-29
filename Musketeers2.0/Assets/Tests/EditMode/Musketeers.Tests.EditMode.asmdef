@@ -4,7 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Assembly-CSharp"
+        "Musketeers.Battle"
     ],
     "includePlatforms": [
         "Editor"
@@ -16,7 +16,9 @@
         "nunit.framework.dll"
     ],
     "autoReferenced": false,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }
