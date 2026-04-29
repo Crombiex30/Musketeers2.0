@@ -22,17 +22,27 @@ namespace Musketeers.Battle
         private int activeActorIndex;
         private BattleSkillDefinition pendingSkill;
         private bool resolving;
+        private BattleEventSystem eventSystem;
 
         public event Action<BattlePhase> PhaseChanged;
         public event Action<BattleResult> ActionResolved;
         public event Action<BattleUnit> ActiveActorChanged;
         public event Action<BattleTurnIconPool> TurnIconsChanged;
+        /// <summary>Raised when a new randomized event triggers or produces follow-up messages.</summary>
+        public event Action<BattleEventDefinition, BattleEventContext> BattleEventTriggered;
+        /// <summary>Raised when the active event expires.</summary>
+        public event Action<BattleEventDefinition, BattleEventContext> BattleEventExpired;
+        /// <summary>Raised whenever the event system emits log messages mid-turn.</summary>
+        public event Action<BattleEventContext> BattleEventUpdated;
 
         public BattlePhase Phase => phase;
         public BattleUnit ActiveActor { get; private set; }
         public IReadOnlyList<BattleUnit> Party => party;
         public IReadOnlyList<BattleUnit> Enemies => enemies;
         public BattleTurnIconPool TurnIcons => turnIcons;
+        public BattleEventSystem EventSystem => eventSystem;
+        /// <summary>Convenience accessor for the active event's restrictions (None if no event).</summary>
+        public BattleEventRestriction ActiveEventRestrictions => eventSystem?.CurrentRestrictions ?? BattleEventRestriction.None;
 
         private void Awake()
         {
@@ -63,6 +73,24 @@ namespace Musketeers.Battle
 
             BuildUnits(encounter.party, BattleFaction.Party, party);
             BuildUnits(encounter.enemies, BattleFaction.Enemy, enemies);
+
+            // Initialise the event system from the encounter pool.
+            eventSystem = new BattleEventSystem(encounter.eventPool, encounter.eventChance);
+            eventSystem.EventTriggered += (ev, ctx) =>
+            {
+                BroadcastEventMessages(ctx);
+                BattleEventTriggered?.Invoke(ev, ctx);
+            };
+            eventSystem.EventExpired += (ev, ctx) =>
+            {
+                BroadcastEventMessages(ctx);
+                BattleEventExpired?.Invoke(ev, ctx);
+            };
+            eventSystem.TurnEnded += ctx =>
+            {
+                BroadcastEventMessages(ctx);
+                BattleEventUpdated?.Invoke(ctx);
+            };
 
             if (battleView != null)
             {
@@ -214,6 +242,12 @@ namespace Musketeers.Battle
                 }
             }
 
+            // Tick event duration at end of enemy turn before switching sides.
+            if (eventSystem != null)
+            {
+                eventSystem.OnTurnEnd(party, enemies, turnIcons, activeFaction);
+            }
+
             StartFactionTurn(BattleFaction.Party);
         }
 
@@ -237,6 +271,40 @@ namespace Musketeers.Battle
             TurnIconsChanged?.Invoke(turnIcons);
             ActionResolved?.Invoke(result);
             battleView?.ShowResult(result);
+
+            // Notify event system about outcomes.
+            if (eventSystem != null)
+            {
+                // Tick the Unstable Relic countdown.
+                eventSystem.OnActionTaken(party, enemies, turnIcons, activeFaction);
+
+                // Trigger Volatile Gas Pocket explosion when a Fire spell is used.
+                if (result.Skill != null && result.Skill.element == BattleElement.Fire)
+                {
+                    eventSystem.OnFireSpellCast(party, enemies, turnIcons, activeFaction);
+                }
+
+                // Spectral Audience reactions.
+                if (result.TurnOutcome == BattleActionOutcome.Weak || result.TurnOutcome == BattleActionOutcome.Critical)
+                {
+                    eventSystem.OnCriticalHit(result.Actor, party, enemies, turnIcons, activeFaction);
+                }
+
+                if (result.TurnOutcome == BattleActionOutcome.Miss)
+                {
+                    eventSystem.OnMissedAttack(result.Actor, party, enemies, turnIcons, activeFaction);
+                }
+
+                // Check for deaths and notify Cursed Miasma.
+                for (int i = 0; i < result.Targets.Count; i++)
+                {
+                    if (result.Targets[i] != null && result.Targets[i].Defeated)
+                    {
+                        eventSystem.OnUnitDied(result.Targets[i].Target, party, enemies, turnIcons, activeFaction);
+                    }
+                }
+            }
+
             CheckBattleEnd();
         }
 
@@ -273,6 +341,13 @@ namespace Musketeers.Battle
             {
                 units[i]?.TickStatuses();
                 units[i]?.SetGuarding(false);
+            }
+
+            // Roll / tick the randomized event system at the start of each faction turn.
+            if (eventSystem != null)
+            {
+                BattleEventContext ctx = eventSystem.OnTurnStart(party, enemies, turnIcons, activeFaction);
+                BroadcastEventMessages(ctx);
             }
 
             if (faction == BattleFaction.Party)
@@ -405,6 +480,16 @@ namespace Musketeers.Battle
             }
 
             return count;
+        }
+
+        private void BroadcastEventMessages(BattleEventContext ctx)
+        {
+            if (ctx == null) return;
+            for (int i = 0; i < ctx.Messages.Count; i++)
+            {
+                battleView?.ShowMessage(ctx.Messages[i]);
+            }
+            ctx.Messages.Clear();
         }
     }
 }

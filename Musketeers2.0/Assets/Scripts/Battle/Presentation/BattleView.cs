@@ -32,6 +32,39 @@ namespace Musketeers.Battle
 
             controller.ActionResolved += RefreshAfterAction;
             controller.ActiveActorChanged += HighlightActiveActor;
+            controller.BattleEventTriggered += OnBattleEventTriggered;
+            controller.BattleEventExpired += OnBattleEventExpired;
+        }
+
+        /// <summary>Shows the event announcement banner / log entry when a new event fires.</summary>
+        public void ShowEventAnnouncement(BattleEventDefinition eventDef, BattleEventContext ctx)
+        {
+            if (eventDef == null) return;
+            battleLog?.Add($"[EVENT] {eventDef.displayName.ToUpper()}");
+            battleLog?.Add(eventDef.description);
+            if (ctx != null)
+            {
+                for (int i = 0; i < ctx.Messages.Count; i++)
+                    battleLog?.Add(ctx.Messages[i]);
+                ctx.Messages.Clear();
+            }
+        }
+
+        private void OnBattleEventTriggered(BattleEventDefinition eventDef, BattleEventContext ctx)
+        {
+            ShowEventAnnouncement(eventDef, ctx);
+        }
+
+        private void OnBattleEventExpired(BattleEventDefinition eventDef, BattleEventContext ctx)
+        {
+            if (eventDef != null)
+                battleLog?.Add($"[EVENT OVER] {eventDef.displayName} has ended.");
+            if (ctx != null)
+            {
+                for (int i = 0; i < ctx.Messages.Count; i++)
+                    battleLog?.Add(ctx.Messages[i]);
+                ctx.Messages.Clear();
+            }
         }
 
         public void ShowCommandOptions(BattleUnit actor)
