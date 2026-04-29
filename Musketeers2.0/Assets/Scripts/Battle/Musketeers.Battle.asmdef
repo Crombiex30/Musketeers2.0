@@ -1,7 +1,9 @@
 {
     "name": "Musketeers.Battle",
     "rootNamespace": "Musketeers.Battle",
-    "references": [],
+    "references": [
+        "Unity.TextMeshPro"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

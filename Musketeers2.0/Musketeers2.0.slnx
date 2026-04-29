@@ -95,6 +95,7 @@
   <Project Path="Unity.Entities.UI.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Unity.2D.Common.Runtime.csproj" />
+  <Project Path="Musketeers.Battle.csproj" />
   <Project Path="Unity.Play.Publisher.Editor.csproj" />
   <Project Path="Unity.Transforms.csproj" />
   <Project Path="Unity.Settings.Editor.csproj" />
@@ -117,6 +118,7 @@
   <Project Path="Unity.Transforms.Hybrid.csproj" />
   <Project Path="Unity.Serialization.Editor.csproj" />
   <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />
+  <Project Path="Musketeers.Battle.Editor.csproj" />
   <Project Path="Unity.RenderPipelines.Universal.Shaders.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Runtime.Shared.csproj" />
   <Project Path="Unity.InternalAPIEngineBridge.004.csproj" />

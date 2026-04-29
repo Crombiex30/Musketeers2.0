@@ -6,8 +6,6 @@ namespace Musketeers.Battle
     {
         [SerializeField] private BattleEncounterDefinition encounter;
         [SerializeField] private BattleController controller;
-        [SerializeField] private BattleSystem legacyBattleSystem;
-        [SerializeField] private bool disableLegacyBattleSystem = true;
         [SerializeField] private bool launchOnStart = true;
 
         private void Awake()
@@ -16,20 +14,10 @@ namespace Musketeers.Battle
             {
                 controller = GetComponent<BattleController>();
             }
-
-            if (legacyBattleSystem == null)
-            {
-                legacyBattleSystem = GetComponent<BattleSystem>();
-            }
         }
 
         private void Start()
         {
-            if (disableLegacyBattleSystem && legacyBattleSystem != null)
-            {
-                legacyBattleSystem.enabled = false;
-            }
-
             if (launchOnStart)
             {
                 Launch();
