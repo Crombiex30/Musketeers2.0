@@ -241,20 +241,20 @@ public class BattleSystem : MonoBehaviour
     {
         if (hud.tank == true)
         {   
-            Debug.Log("Tank");
+            //Debug.Log("Tank");
             return tankUnit;
 
         }else if(hud.sword == true)
         {
-            Debug.Log("Sword");
+            //Debug.Log("Sword");
             return swordUnit;
         } else if (hud.healer == true)
         {
-            Debug.Log("Healer");
+            //Debug.Log("Healer");
             return healerUnit;
         }else if(hud.ranger == true)
         {
-            Debug.Log("Ranger");
+            //Debug.Log("Ranger");
             return rangerUnit;
         }
 
