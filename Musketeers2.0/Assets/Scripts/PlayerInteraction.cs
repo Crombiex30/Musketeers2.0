@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    [SerializeField] private float intteractDistance = 3f;
-    [SerializeField] private Camera playerCamera;
-    [SerializeField] private LayerMask InteractableLayer;
+    [Header("Interaction Settings")]
+    [SerializeField] private float interactDistance = 1f;
+    [SerializeField] private string interactableTag = "Interactable";
 
     private Interactable currentInteractable;
 
     private void Update()
     {
         CheckForInteractable();
-        
+
         if (currentInteractable != null && Input.GetKeyDown(KeyCode.E))
         {
             currentInteractable.Interact();
@@ -21,19 +21,41 @@ public class PlayerInteraction : MonoBehaviour
     private void CheckForInteractable()
     {
         currentInteractable = null;
-        
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, intteractDistance, InteractableLayer))
+        Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, interactDistance);
+
+        float closestDistance = Mathf.Infinity;
+        Interactable closestInteractable = null;
+
+        foreach (Collider collider in nearbyColliders)
         {
-            currentInteractable = hit.collider.GetComponent<Interactable>();
-
-            if (currentInteractable == null)
+            if (!collider.CompareTag(interactableTag))
             {
-                currentInteractable = hit.collider.GetComponentInParent<Interactable>();
+                continue;
+            }
+
+            Interactable interactable = collider.GetComponent<Interactable>();
+
+            if (interactable == null)
+            {
+                interactable = collider.GetComponentInParent<Interactable>();
+            }
+
+            if (interactable == null)
+            {
+                continue;
+            }
+
+            float distance = Vector3.Distance(transform.position, collider.transform.position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestInteractable = interactable;
             }
         }
+
+        currentInteractable = closestInteractable;
     }
 
     public Interactable GetInteractable()
@@ -43,10 +65,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (playerCamera != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawRay(playerCamera.transform.position, playerCamera.transform.forward * intteractDistance);
-        }
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, interactDistance);
     }
 }
