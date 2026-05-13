@@ -133,4 +133,7 @@ MonoBehaviour:
   damage: 1
   maxHP: 10
   currentHP: 5
+  dangerLevel: 0
+  abilites:
+  - 
   healthBar: {fileID: 0}
