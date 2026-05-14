@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
+using UnityEditor;
 
 public class EnemyMovement : MonoBehaviour
 {
