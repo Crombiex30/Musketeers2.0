@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
@@ -34,7 +35,7 @@ public class BattleSystem : MonoBehaviour
     public GameObject swordPrefab;
     public GameObject healerPrefab;
     public GameObject rangerPrefab;
-    public GameObject enemyPrefab;
+    public GameObject[] enemyPrefabs;
     public TMP_Text sitText; 
     public TMP_Text eventText;
     public TMP_Text turnText;
@@ -107,8 +108,14 @@ public class BattleSystem : MonoBehaviour
     }
     void SetUpEnemy()
     {
-        GameObject enemyGO = enemyPrefab;
-        enemyUnit = enemyGO.GetComponent<Unit>();
+        int selectedIndex = BattleData.selectedEnemyIndex;
+        if(selectedIndex < 0 || selectedIndex >= enemyPrefabs.Length)
+        {
+            Debug.LogError("Enemy index out of range: " + selectedIndex);
+            return;
+        }
+        GameObject selectedEnemy = Instantiate(enemyPrefabs[selectedIndex]);
+        enemyUnit = selectedEnemy.GetComponent<Unit>();
         enemyHud.SetHUD(enemyUnit);
         prev = enemyUnit.damage;
     }
