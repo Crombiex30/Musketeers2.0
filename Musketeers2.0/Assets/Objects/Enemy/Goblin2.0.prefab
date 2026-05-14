@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 4222937104337400912}
   - component: {fileID: 4793160293039793238}
   - component: {fileID: 5135491691937396912}
+  - component: {fileID: 49805979752998617}
+  - component: {fileID: 172474854310667472}
   m_Layer: 0
   m_Name: Goblin2.0
   m_TagString: Untagged
@@ -108,7 +110,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -133,4 +135,42 @@ MonoBehaviour:
   damage: 5
   maxHP: 10
   currentHP: 3
+  dangerLevel: 0
+  abilites:
+  - 
   healthBar: {fileID: 0}
+--- !u!95 &49805979752998617
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1215735944142431642}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a2aa90ae5948fdf419e1a3920d29105a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &172474854310667472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1215735944142431642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b98b9a492dcc62b4096560d7afa85e42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Teleport
+  scenename: BattleScene
