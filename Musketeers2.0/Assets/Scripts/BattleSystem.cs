@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using TMPro;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -33,8 +35,8 @@ public class BattleSystem : MonoBehaviour
     public GameObject swordPrefab;
     public GameObject healerPrefab;
     public GameObject rangerPrefab;
-    public GameObject enemyPrefab;
-    public TMP_Text hudText; 
+    public GameObject[] enemyPrefabs;
+    public TMP_Text sitText; 
     public TMP_Text eventText;
     public TMP_Text turnText;
     public TMP_Text rollDisplay;
@@ -49,16 +51,18 @@ public class BattleSystem : MonoBehaviour
     Unit healerUnit;
     Unit rangerUnit;
     Unit enemyUnit;
+    Unit empty;
     public BattleState state;
     public List<Unit> members = new List<Unit>{};
     public int numRolled = 0;
     public bool hasDiceRolled;
     public float damageBoost = 1f;
     public float healBoost = 1f;
-    CombatManager hud;
+    public CombatManager hud;
+    List<StatusEffect> activeEffects = new List<StatusEffect>();
     public int combatTurns;
-    private int ultDefstartTurn = -1;
-    private bool ultDefActive = false;
+    private float prev;
+    private int prevDanger;
 
     
     /// <summary>
@@ -104,16 +108,23 @@ public class BattleSystem : MonoBehaviour
     }
     void SetUpEnemy()
     {
-        GameObject enemyGO = enemyPrefab;
-        enemyUnit = enemyGO.GetComponent<Unit>();
+        int selectedIndex = BattleData.selectedEnemyIndex;
+        if(selectedIndex < 0 || selectedIndex >= enemyPrefabs.Length)
+        {
+            Debug.LogError("Enemy index out of range: " + selectedIndex);
+            return;
+        }
+        GameObject selectedEnemy = Instantiate(enemyPrefabs[selectedIndex]);
+        enemyUnit = selectedEnemy.GetComponent<Unit>();
         enemyHud.SetHUD(enemyUnit);
+        prev = enemyUnit.damage;
     }
     IEnumerator SetUpBattle()
     {
         SetUpParty();
         SetUpEnemy();
         rollDisplay.text = "Roll: " + 0;
-        hudText.text = "Your turn";
+        sitText.text = "Your turn";
         eventText.text = "Random Event is occuring...";
 
         yield return new WaitForSeconds(time);
@@ -130,7 +141,7 @@ public class BattleSystem : MonoBehaviour
     void PlayerTurn()
     {
         
-        hudText.text = "Choose an action:";
+        sitText.text = "Choose an action:";
         
 
         
@@ -173,7 +184,7 @@ public class BattleSystem : MonoBehaviour
         switch (randomEvent)
             {
                 case "Wet Floor":
-                    hudText.text = "You slipped.";
+                    sitText.text = "You slipped.";
 
                     yield return new WaitForSeconds(time);
 
@@ -181,7 +192,7 @@ public class BattleSystem : MonoBehaviour
                     StartCoroutine(EnemyTurn());
                     yield break;
                 case "Cracked Floor":
-                    hudText.text = "You fell in a hole and took some damage.";
+                    sitText.text = "You fell in a hole and took some damage.";
                     
                     yield return new WaitForSeconds(time);
 
@@ -201,10 +212,74 @@ public class BattleSystem : MonoBehaviour
                     break;
             }
     }
+/// <summary>
+/// This code piece checks and updates effects based on when they were activated.
+/// </summary>
+    void updateEffect()
+    {
+        combatTurns++;
+        for (int i = activeEffects.Count - 1; i >= 0; i--)
+        {
+            var effect = activeEffects[i];
+            int turnsPassed = combatTurns - effect.startTurn;
 
+            if (turnsPassed > effect.duration)
+            {
+                switch (effect.name)
+                {
+                    case "UltDef":
+                        enemyUnit.damage = prev;
+                        sitText.text = "Protection has ended.";
+                        break;
+                    case "PullAgro":
+                        tankUnit.dangerLevel = prevDanger;
+                        sitText.text = "Enemies have lost interest in Tank.";
+                        break;
+                    default:
+                        break;
+                }
+
+                activeEffects.RemoveAt(i);
+            }
+        }
+    }
+
+    Unit selectedCharacter()
+    {
+        if (hud.tank == true)
+        {   
+            //Debug.Log("Tank");
+            return tankUnit;
+
+        }else if(hud.sword == true)
+        {
+            //Debug.Log("Sword");
+            return swordUnit;
+        } else if (hud.healer == true)
+        {
+            //Debug.Log("Healer");
+            return healerUnit;
+        }else if(hud.ranger == true)
+        {
+            //Debug.Log("Ranger");
+            return rangerUnit;
+        }
+
+        return empty;
+    }
+/// <summary>
+/// This creates an effect so that it can be added to a list and be kept track of.
+/// </summary>
+    class StatusEffect
+    {
+        public string name;
+        public int startTurn;
+        public int duration;
+    }
 
     IEnumerator PlayerAttack()
     {
+        Unit selectedChar = selectedCharacter();
         if (ActiveEvent() )
         {
             StartCoroutine(ActivateEvent());
@@ -212,7 +287,7 @@ public class BattleSystem : MonoBehaviour
 
         state = BattleState.ENEMYTURN;
         
-        enemyUnit.TakeDamage(tankUnit.damage * damageBoost);
+        enemyUnit.TakeDamage(selectedChar.damage* damageBoost);
         
         bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
 
@@ -245,8 +320,12 @@ public class BattleSystem : MonoBehaviour
         {
             StartCoroutine(ActivateEvent());
         }
-
+        prevDanger = tankUnit.dangerLevel;
         tankUnit.dangerLevel = 1000;
+
+        sitText.text = "Tank has attracted the attention of everyone";
+
+        activeEffects.Add(new StatusEffect { name = "PullAgro", startTurn = combatTurns, duration = 2});
 
         yield return new WaitForSeconds(time);
 
@@ -259,6 +338,8 @@ public class BattleSystem : MonoBehaviour
         {
             StartCoroutine(ActivateEvent());
         }
+
+        sitText.text = "Tank bashed into the enemy.";
 
         state = BattleState.ENEMYTURN;
         enemyUnit.TakeDamage((tankUnit.damage + 3) * damageBoost);
@@ -292,24 +373,71 @@ public class BattleSystem : MonoBehaviour
         {
             StartCoroutine(ActivateEvent());
         }
+        state = BattleState.ENEMYTURN;
 
-        ultDefstartTurn = combatTurns;
-        ultDefActive = true;
+        sitText.text = "Tank calls upon the ultimate defence";
+
+        activeEffects.Add(new StatusEffect { name = "UltDef", startTurn = combatTurns, duration = 2});
         
-        if (ultDefActive)
+        
+        if (activeEffects.Exists(effect => effect.name == "UltDef"))
         {
             enemyUnit.damage = 0;
         }
 
         yield return new WaitForSeconds(time);
 
-        state = BattleState.ENEMYTURN;
+        
         StartCoroutine(EnemyTurn());
         
 
     }
 // End of Tanks Abilites
 //////////////////////////////////////////////////////////
+/// Start of Sword Abilities
+
+    IEnumerator SwordSlash()
+    {
+        if (ActiveEvent())
+        {
+            StartCoroutine(ActivateEvent());
+        }
+        sitText.text = "Sword slash at the enemy.";
+
+        state = BattleState.ENEMYTURN;
+        enemyUnit.TakeDamage((swordUnit.damage + 3) * damageBoost);
+        bool isDead = enemyUnit.IsDead(enemyUnit.currentHP);
+
+        enemyHud.SetHP(enemyUnit.currentHP);
+
+        yield return new WaitForSeconds(time);
+
+        if (isDead)
+        {
+            state = BattleState.WON;
+            EndBattle();
+
+            yield return new WaitForSeconds(time);
+
+            SceneController.EnterZone("TestScene");
+        }
+        else
+        {
+            StartCoroutine(EnemyTurn());
+
+        }
+    }
+
+
+
+///End of Sword Abilities
+///////////////////////////////////////////////////////////
+/// Start of Healer Abilities
+/// End of Healer Abilities
+////////////////////////////////////////////////////////////
+/// Start of Ranger Abilities
+/// End of Ranger Abilities
+///////////////////////////////////////////////////////////
     IEnumerator PlayerHeal()
     {   
         if (ActiveEvent() )
@@ -320,7 +448,7 @@ public class BattleSystem : MonoBehaviour
         tankUnit.Heal(5);
 
         tankHud.SetHP(tankUnit.currentHP);
-        hudText.text = "You healed";
+        sitText.text = "You healed";
 
         yield return new WaitForSeconds(time);
 
@@ -387,11 +515,11 @@ public class BattleSystem : MonoBehaviour
     {
         if (state == BattleState.WON)
         {
-            hudText.text = "Enemy has been defeated";
+            sitText.text = "Enemy has been defeated";
 
         }else if (state == BattleState.LOSS)
         {
-            hudText.text = "Your dead";
+            sitText.text = "Your dead";
 
             
         }
@@ -399,16 +527,8 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-        combatTurns++;
-        if (ultDefActive)
-        {
-            turnsPassed = combatTurns - ultDefstartTurn;
-            if (turnsPassed >= 2)
-            {
-                ultDefActive = false;
-                ultDefstartTurn = -1;
-            }
-        }
+        updateEffect();
+        yield return new WaitForSeconds(time);
         numRolled = 0;
         damageBoost = 1;
         healBoost = 1;
@@ -419,7 +539,7 @@ public class BattleSystem : MonoBehaviour
             switch (randomEvent)
             {
                 case "Wet Floor":
-                    hudText.text = "Enemy slipped.";
+                    sitText.text = "Enemy slipped.";
             
                     yield return new WaitForSeconds(time);
                     if (turns > 0)
@@ -450,7 +570,7 @@ public class BattleSystem : MonoBehaviour
                     PlayerTurn();
                     yield break;
                 case "Cracked Floor":
-                    hudText.text = "Enemy fell into a hole and took damage.";
+                    sitText.text = "Enemy fell into a hole and took damage.";
 
                     yield return new WaitForSeconds(time);
                     
@@ -473,7 +593,7 @@ public class BattleSystem : MonoBehaviour
             }
             
         }
-        hudText.text = enemyUnit.unitName + " attacks!";
+        sitText.text = enemyUnit.unitName + " attacks!";
 
         yield return new WaitForSeconds(time);
 
@@ -591,6 +711,16 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(UltDef());
     }
 //////////////////////////////////////////////////////////////
+/// These are Sword Buttons
+    public void OnSwordSlashButton()
+    {
+        if (state != BattleState.PLAYERTURN)
+        {
+            return;
+        }
+        StartCoroutine(SwordSlash());
+    }
+
     public void OnHealButton()
     {
         if (state != BattleState.PLAYERTURN)

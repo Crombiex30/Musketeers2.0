@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2555417727109022206
+--- !u!1 &1730758564615383079
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,27 +8,27 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3700562009007632517}
-  - component: {fileID: 7386789437908588228}
-  - component: {fileID: 3952563652908772725}
-  - component: {fileID: 2084376237275382859}
-  - component: {fileID: 1527588961105417479}
-  - component: {fileID: 8714009658322948119}
-  - component: {fileID: 11149243142469123}
+  - component: {fileID: 8862408324145068683}
+  - component: {fileID: 5802815288502872997}
+  - component: {fileID: 4168186317866614146}
+  - component: {fileID: 2933011122935413751}
+  - component: {fileID: 7173157874856551883}
+  - component: {fileID: 113679012738156467}
+  - component: {fileID: 3948162322455182105}
   m_Layer: 0
-  m_Name: Wizard
+  m_Name: Goblin
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3700562009007632517
+--- !u!4 &8862408324145068683
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2555417727109022206}
+  m_GameObject: {fileID: 1730758564615383079}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.90885067, z: -0, w: -0.41712165}
   m_LocalPosition: {x: -293.12, y: 39.12, z: -68.79}
@@ -37,14 +37,14 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 229.306, z: 0}
---- !u!212 &7386789437908588228
+--- !u!212 &5802815288502872997
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2555417727109022206}
+  m_GameObject: {fileID: 1730758564615383079}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -86,7 +86,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1477299642, guid: 319a4836b2f20b24dbe98d0dbe333b93, type: 3}
+  m_Sprite: {fileID: -781472515, guid: 319a4836b2f20b24dbe98d0dbe333b93, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -96,13 +96,13 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!136 &3952563652908772725
+--- !u!136 &4168186317866614146
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2555417727109022206}
+  m_GameObject: {fileID: 1730758564615383079}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -119,14 +119,14 @@ CapsuleCollider:
   m_Height: 0.41635767
   m_Direction: 1
   m_Center: {x: -0.02331673, y: -0.009066129, z: -1.7878052e-10}
---- !u!95 &2084376237275382859
+--- !u!95 &2933011122935413751
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2555417727109022206}
+  m_GameObject: {fileID: 1730758564615383079}
   m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: ed8970a4cf753294aa9ac9c9ac3609bc, type: 2}
@@ -141,13 +141,13 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!143 &1527588961105417479
+--- !u!143 &7173157874856551883
 CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2555417727109022206}
+  m_GameObject: {fileID: 1730758564615383079}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -166,38 +166,38 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8714009658322948119
+--- !u!114 &113679012738156467
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2555417727109022206}
+  m_GameObject: {fileID: 1730758564615383079}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 10bac8c77395435418a1e87b4fc993af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Unit
-  unitName: Wizard
-  unitLevel: 10
+  unitName: Goblin
+  unitLevel: 5
   damage: 1
   maxHP: 10
   currentHP: 10
-  dangerLevel: 3
+  dangerLevel: 1
   abilites:
   - 
   healthBar: {fileID: 0}
---- !u!114 &11149243142469123
+--- !u!114 &3948162322455182105
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2555417727109022206}
+  m_GameObject: {fileID: 1730758564615383079}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b98b9a492dcc62b4096560d7afa85e42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Teleport
   scenename: BattleScene
-  enemyIndex: 2
+  enemyIndex: 0
